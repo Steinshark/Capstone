@@ -8,7 +8,6 @@ from tkinter.filedialog import askopenfile          # allows for file interactio
 from tkinter.filedialog import askdirectory         # allows for file interaction
 from json import loads, dumps
 
-from modes import *
 
 
 class Utilities:
@@ -65,7 +64,7 @@ class Utilities:
 
     # Upload single file to app
     @staticmethod
-    def import_file(APP_REFERENCE):
+    def import_file(APP_REFERENCE,scrolled_text=None):
         supported_types =   (   ("text files", "*.txt"),\
                                 ("word files", "*.docx"),\
                                 ("pdf files", "*.pdf"),\
@@ -77,6 +76,10 @@ class Utilities:
         # user picks a file which is added to the data dictionary of the APP
         if not file is None:
             APP_REFERENCE.data['loaded_files'][file.name] = file
+        if not scrolled_text is None:
+            for line in file:
+                scrolled_text.insert(tkinter.END,f"{line}")
+
         else:
             #line114
             pass
@@ -128,5 +131,3 @@ class Utilities:
         with open('sessions.txt') as save_states:
             for line in save_states.readlines():
                 pass
-
-    modes = {'splash'  : Splash}

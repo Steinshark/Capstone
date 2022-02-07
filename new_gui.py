@@ -28,7 +28,7 @@ class GUI_APP:
         self.initialize_window()
 
         #create options menu
-        self.change_mode('worksession')
+        self.change_mode('worksession',4)
 
         #create frames to organize layout
 
@@ -58,14 +58,9 @@ class GUI_APP:
         self.settings['screen_res_height'   ]   = self.window.winfo_screenheight()
         self.settings['current_width'       ]   = self.window.winfo_width()
         self.settings['current_height'      ]   = self.window.winfo_height()
-
-
-        self.window.columnconfigure(0, weight=1)
-        self.window.columnconfigure(1, weight=1)
-
     # Change the layout of the GUI window
-    def change_mode(self,mode):
-        self.mode = self.modes[mode](self)
+    def change_mode(self,mode,windows):
+        self.mode = self.modes[mode](self,n_frames = windows)
 
     # Window settings and data (files, etc...) initialized here
     def initialize_settings(self,w,h,n):
@@ -95,6 +90,9 @@ class GUI_APP:
                             'splash'                        :   Splash,\
                             'worksession'                   :   WorkSession
                         }
+        self.viewports  =   {\
+
+        }
 
     def draw(self):
         self.window.grid()
