@@ -28,7 +28,7 @@ class GUI_APP:
         self.initialize_window()
 
         #create options menu
-        self.change_mode('worksession',4)
+        self.change_mode('worksession',1)
 
         #create frames to organize layout
 

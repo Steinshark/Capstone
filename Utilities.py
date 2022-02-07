@@ -51,6 +51,8 @@ class Utilities:
                     APP_REFERENCE.data['loaded_files'][file.name] = ImportedFile(file.name,file.raw.read())
 
                     # Print status to the GUI text bar
+                    APP_REFERENCE.live_text.delete('0.0', END)
+
                     APP_REFERENCE.live_text.insert(tkinter.END,"\tfetched: " + str(file.name.split('/')[-1]) + "\n")
                     APP_REFERENCE.live_text.yview(tkinter.END)
 
@@ -77,8 +79,9 @@ class Utilities:
         if not file is None:
             APP_REFERENCE.data['loaded_files'][file.name] = file
         if not scrolled_text is None:
-            for line in file:
-                scrolled_text.insert(tkinter.END,f"{line}")
+            scrolled_text.delete('0.0',tkinter.END)
+            for line in file.read().splitlines():
+                scrolled_text.insert(tkinter.END,f"{line}\n")
 
         else:
             #line114

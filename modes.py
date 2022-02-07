@@ -81,6 +81,8 @@ class WorkSession:
 
 
         self.tool_dropdown['edit'].add_command(label='import',command = lambda x : x)
+        self.tool_dropdown['edit'].add_command(label='view1',command = lambda  : self.__init__(APP_REF,1))
+        self.tool_dropdown['edit'].add_command(label='view2',command = lambda  : self.__init__(APP_REF,2))
 
         # TOOLS DROPDOWN CREATIONS
         self.tool_dropdown['tools'].add_command(label='word count',command = lambda x : x)
@@ -106,10 +108,12 @@ class WorkSession:
         }
 
         APP_REF.viewports['BLOCK1'] = Frame(APP_REF.window)
-        APP_REF.viewports['BLOCK2'] = Frame(APP_REF.window)
+        if self.n_frames == 2:
+            APP_REF.viewports['BLOCK2'] = Frame(APP_REF.window)
 
         APP_REF.viewports["window1"] = ScrolledText(APP_REF.viewports['BLOCK1'])
-        APP_REF.viewports["window2"] = ScrolledText(APP_REF.viewports['BLOCK2'])
+        if self.n_frames == 2:
+            APP_REF.viewports["window2"] = ScrolledText(APP_REF.viewports['BLOCK2'])
 
         APP_REF.viewports['topBar'] = Frame(APP_REF.window)
         APP_REF.viewports['topBar'].config(bg='#222222')
@@ -134,24 +138,24 @@ class WorkSession:
 
 
 
+        if self.n_frames == 2:
+            APP_REF.viewports['int2'] =  Frame(APP_REF.window)
+            APP_REF.viewports['int2'].config(bg='#191d21')
 
-        APP_REF.viewports['int2'] =  Frame(APP_REF.window)
-        APP_REF.viewports['int2'].config(bg='#191d21')
-
-        APP_REF.viewports["int2Button"]   = Button(APP_REF.viewports['int2'], text="import interview", command = lambda : Utilities.import_file(APP_REF,scrolled_text=APP_REF.viewports["window2"]))
-        APP_REF.viewports['int2Button'].grid(sticky='nsew',row=0,column=0,padx=0,pady=0)
-
-
-        APP_REF.viewports['int2'].grid(row=1,column=2,padx=0,pady=0,sticky='nsew')
+            APP_REF.viewports["int2Button"]   = Button(APP_REF.viewports['int2'], text="import interview", command = lambda : Utilities.import_file(APP_REF,scrolled_text=APP_REF.viewports["window2"]))
+            APP_REF.viewports['int2Button'].grid(sticky='nsew',row=0,column=0,padx=0,pady=0)
 
 
+            APP_REF.viewports['int2'].grid(row=1,column=2,padx=0,pady=0,sticky='nsew')
 
-        APP_REF.viewports['window2'].config(bg='#ebe1be')
-        APP_REF.viewports['BLOCK2'].columnconfigure(0,weight=1)
-        APP_REF.viewports['BLOCK2'].rowconfigure(0,weight=1)
 
-        APP_REF.viewports['window2'].grid(sticky='nsew',row=0,column=0,padx=4,pady=4)
-        APP_REF.viewports["BLOCK2"].grid(row=2,column=2,sticky='nsew', padx=10,pady=5)
+
+            APP_REF.viewports['window2'].config(bg='#ebe1be')
+            APP_REF.viewports['BLOCK2'].columnconfigure(0,weight=1)
+            APP_REF.viewports['BLOCK2'].rowconfigure(0,weight=1)
+
+            APP_REF.viewports['window2'].grid(sticky='nsew',row=0,column=0,padx=4,pady=4)
+            APP_REF.viewports["BLOCK2"].grid(row=2,column=2,sticky='nsew', padx=10,pady=5)
 
 
 
