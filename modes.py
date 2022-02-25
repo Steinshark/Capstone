@@ -1,7 +1,6 @@
 import os                                           # allows access to filepath
 from tkinter import Menu, RAISED, Frame, Label, Button, Entry, Tk, N, S, E, W, Y, X
 from tkinter.scrolledtext import *
-from tkPDFViewer import tkPDFViewer
 from Utilities import Utilities
 
 class Splash:
@@ -156,17 +155,3 @@ class WorkSession:
 
             APP_REF.viewports['window2'].grid(sticky='nsew',row=0,column=0,padx=4,pady=4)
             APP_REF.viewports["BLOCK2"].grid(row=2,column=2,sticky='nsew', padx=10,pady=5)
-
-
-
-
-        #APP_REF.frames['toolbar'].grid(row=0,sticky='ew')
-        #APP_REF.frames['workspace'].grid(row=1,sticky='nsew')
-
-
-
-
-
-        #APP_REF.pdf = tkPDFViewer.ShowPdf()
-        #APP_REF.pdf2 = APP_REF.pdf.pdf_view(APP_REF.window, pdf_location = r'D:\Website\reciept.pdf')
-        #APP_REF.pdf2.grid(column=1,row=0)
