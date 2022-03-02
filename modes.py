@@ -2,7 +2,7 @@ import os                                           # allows access to filepath
 from tkinter import Menu, RAISED, Frame, Label, Button, Entry, Tk, N, S, E, W, Y, X
 from tkinter.scrolledtext import *
 from Utilities import Utilities
-
+import tkinter 
 class Splash:
     def __init__(self, APP_REF,n_frames=0):
         self.load_menu(APP_REF)
@@ -42,23 +42,28 @@ class Splash:
 
 class WorkSession:
     def __init__(self, APP_REF,n_frames=2):
-
         self.n_frames = n_frames
+        for w in APP_REF.window.winfo_children():
+            w.destroy()
+
+
+
         APP_REF.window.columnconfigure(0,weight=1)
         APP_REF.window.columnconfigure(1,weight=1)
+
         APP_REF.window.columnconfigure(2,weight=1)
         APP_REF.window.rowconfigure(0,weight=1)
         APP_REF.window.rowconfigure(1,weight=1)
         APP_REF.window.rowconfigure(2,weight=10)
 
         APP_REF.window.config(bg='#222226')
-
+        print(f"{n_frames} frames")
 
         self.load_menu(APP_REF)
         self.load_frames(APP_REF)
 
     def load_menu(self,APP_REF):
-        self.toolbar = Menu(APP_REF.window,relief=RAISED)
+        self.toolbar = Menu(APP_REF.root,relief=RAISED)
         self.toolbar['bg']= '#222222'
         self.toolbar['fg']= '#222222'
         # Init each dropdown that we want
@@ -80,8 +85,8 @@ class WorkSession:
 
 
         self.tool_dropdown['edit'].add_command(label='import',command = lambda x : x)
-        self.tool_dropdown['edit'].add_command(label='view1',command = lambda  : self.__init__(APP_REF,1))
-        self.tool_dropdown['edit'].add_command(label='view2',command = lambda  : self.__init__(APP_REF,2))
+        self.tool_dropdown['edit'].add_command(label='view1',command = lambda  : self.__init__(APP_REF,n_frames=1))
+        self.tool_dropdown['edit'].add_command(label='view2',command = lambda  : self.__init__(APP_REF,n_frames=2))
 
         # TOOLS DROPDOWN CREATIONS
         self.tool_dropdown['tools'].add_command(label='word count',command = lambda x : x)
@@ -98,7 +103,7 @@ class WorkSession:
         self.toolbar.add_cascade(label='Tools',menu=self.tool_dropdown['tools'])
 
         # add the bar to the window
-        APP_REF.window.config(menu=self.toolbar)
+        APP_REF.root.config(menu=self.toolbar)
 
     def load_frames(self,APP_REF):
         APP_REF.frames = {
@@ -155,3 +160,5 @@ class WorkSession:
 
             APP_REF.viewports['window2'].grid(sticky='nsew',row=0,column=0,padx=4,pady=4)
             APP_REF.viewports["BLOCK2"].grid(row=2,column=2,sticky='nsew', padx=10,pady=5)
+
+

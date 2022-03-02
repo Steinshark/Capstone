@@ -37,37 +37,34 @@ class GUI_APP:
 
         self.timer = time.time()
         self.draw()
-        self.window.mainloop()
-        while self.settings['running']:
-            try:
-                self.update_window_tasks()
-                self.window.update_idletasks()
-            except tkinter.TclError:
-                print("Shutting down, goodbye!")
-                return
+        self.root.mainloop()
+
 
     # Call all methods to initialize the GUI and 
     # initialze all fields contained within
     def initialize_window(self):
-        self.window = tkinter.Tk()
-        self.window.geometry(get_window_size_as_text(self))
-        self.window.title(get_window_title_as_text(self))
+        self.root = tkinter.Tk()
+        self.window = Frame(self.root)
+        self.window.pack()
+        self.root.geometry(get_window_size_as_text(self))
+        self.root.title(get_window_title_as_text(self))
         #h = tkinter.PhotoImage(os.getcwd()+'/logo.ico')
-        #self.window.wm_iconphoto(True,h)
+        #self.root.wm_iconphoto(True,h)
 
         # Update some settings that we get only after we instantiate
         # the window
-        self.settings['screen_res_width'    ]   = self.window.winfo_screenwidth()
-        self.settings['screen_res_height'   ]   = self.window.winfo_screenheight()
-        self.settings['current_width'       ]   = self.window.winfo_width()
-        self.settings['current_height'      ]   = self.window.winfo_height()
+        self.settings['screen_res_width'    ]   = self.root.winfo_screenwidth()
+        self.settings['screen_res_height'   ]   = self.root.winfo_screenheight()
+        self.settings['current_width'       ]   = self.root.winfo_width()
+        self.settings['current_height'      ]   = self.root.winfo_height()
     
     
     # Change the layout of the GUI window
     def change_mode(self,mode,windows):
     # contains the init method of the class 'mode'              called with reference to self   and num interveiws to show
         self.mode = self.modes[mode](                           self,                           n_frames = windows)
-
+        self.draw()
+        print("called")
 
     # All GUI fields are init'ed here. a GUI will have a:
         # settings 
@@ -131,7 +128,7 @@ class GUI_APP:
     # *DEPRECATED*
     # Currently not used.
     def draw(self):
-        self.window.grid()
+        self.root.grid()
 
 
 
