@@ -9,6 +9,20 @@ from tkinter.filedialog import askdirectory         # allows for file interactio
 from json import loads, dumps
 
 
+# A clean container for imported files
+class ImportedFile:
+    def __init__(self,filepath,contents_as_rb):
+        self.filepath = filepath
+        self.contents_as_rb = contents_as_rb
+        self.contents_as_text = contents_as_rb.decode()
+
+        self.lines = [l for l in self.contents_as_text.split('\n') if not l == '']
+        self.words = [w for w in self.contents_as_text.split(' ')  if not w == '']
+        self.chars = [c for c in self.contents_as_text  if not c == ' ' or not c =='']
+
+    def __repr__(self):
+        return 'new_imported_file\n\t' + str(self.filepath) + '\n\t' + str(self.contents_as_rb) + '\n'
+
 
 class Utilities:
 
@@ -73,19 +87,19 @@ class Utilities:
                                 # Probably will not include in final version
                                 ("all files", "*.*")  )
 
-        file = askopenfile(filetypes=supported_types)
+        file = askopenfile(mode='rb',filetypes=supported_types)
 
         # user picks a file which is added to the data dictionary of the APP
         if not file is None:
-            APP_REFERENCE.data['loaded_files'][file.name] = file
+            APP_REFERENCE.data['loaded_files'][file.name] = ImportedFile(file.name,file.raw.read())
+
+        print(f"rb is {APP_REFERENCE.data['loaded_files'][file.name].contents_as_rb}")
         if not scrolled_text is None:
             scrolled_text.delete('0.0',tkinter.END)
-            for line in file.read().splitlines():
-                scrolled_text.insert(tkinter.END,f"{line}\n")
-
+            text = APP_REFERENCE.data['loaded_files'][file.name].contents_as_rb.decode()
+            scrolled_text.insert(tkinter.END,f"{text}\n")
         else:
-            #line114
-            pass
+            print("oh no")
 
 
     # this method will be used to export the
