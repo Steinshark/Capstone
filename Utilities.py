@@ -92,12 +92,12 @@ class Utilities:
         # user picks a file which is added to the data dictionary of the APP
         if not file is None:
             APP_REFERENCE.data['loaded_files'][file.name] = ImportedFile(file.name,file.raw.read())
-
-        print(f"rb is {APP_REFERENCE.data['loaded_files'][file.name].contents_as_rb}")
+            print(len(APP_REFERENCE.data['loaded_files'][file.name].lines))
         if not scrolled_text is None:
             scrolled_text.delete('0.0',tkinter.END)
             text = APP_REFERENCE.data['loaded_files'][file.name].contents_as_rb.decode()
             scrolled_text.insert(tkinter.END,f"{text}\n")
+            scrolled_text.configure(state="disabled")
         else:
             print("oh no")
 

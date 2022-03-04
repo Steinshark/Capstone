@@ -78,7 +78,10 @@ class GUI_APP:
                             'window_name'           :   n,\
                             'resize'                :   False,\
                             'running'               :   True,\
-                            'main color'            : '#2E3338'
+                            'main color'            : '#2E3338',
+                            'font'                  : 'Times New Roman',
+                            'text_size'             : 15,
+                            'main_theme_bg'         : "#222226"
                         }
 
         # Used to store the data (interviews and NLP models) that the

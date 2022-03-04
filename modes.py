@@ -43,21 +43,30 @@ class Splash:
 class WorkSession:
     def __init__(self, APP_REF,n_frames=2):
         self.n_frames = n_frames
+        
+
+        # STYLE SETTINGS 
+        self.style = {
+                        'block_bg'      : "#a3a7b2",
+                        'optionbox_bg'  : "#191d21",
+                        'interview_bg'  : '#FFF8ED'
+        }
+        # Ensure that we start with a clean slate 
         for w in APP_REF.window.winfo_children():
             w.destroy()
 
 
-
+        # Create the grid layout of the main frame
         APP_REF.window.columnconfigure(0,weight=1)
         APP_REF.window.columnconfigure(1,weight=1)
-
         APP_REF.window.columnconfigure(2,weight=1)
+
         APP_REF.window.rowconfigure(0,weight=1)
         APP_REF.window.rowconfigure(1,weight=1)
         APP_REF.window.rowconfigure(2,weight=10)
 
-        APP_REF.window.config(bg='#222226')
-        print(f"{n_frames} frames")
+        # Configure the background color
+        APP_REF.window.config(bg=APP_REF.settings['main_theme_bg'])
 
         self.load_menu(APP_REF)
         self.load_frames(APP_REF)
@@ -108,57 +117,46 @@ class WorkSession:
     def load_frames(self,APP_REF):
         APP_REF.frames = {
                                     'toolbar'                   :   Frame(APP_REF.window,bg='red'),
-                                    'workspace'                 :   Frame(APP_REF.window,bg='blue')\
+                                    'workspace'                 :   Frame(APP_REF.window,bg='blue'),
+
         }
-
-        APP_REF.viewports['BLOCK1'] = Frame(APP_REF.window)
-        if self.n_frames == 2:
-            APP_REF.viewports['BLOCK2'] = Frame(APP_REF.window)
-
-        APP_REF.viewports["window1"] = ScrolledText(APP_REF.viewports['BLOCK1'])
-        if self.n_frames == 2:
-            APP_REF.viewports["window2"] = ScrolledText(APP_REF.viewports['BLOCK2'])
-
-        APP_REF.viewports['topBar'] = Frame(APP_REF.window)
-        APP_REF.viewports['topBar'].config(bg='#222222')
-        APP_REF.viewports['topBar'].grid(row=0,column=0,padx=0,pady=0,sticky='nsew',columnspan=3)
-
-
-        APP_REF.viewports['int1'] =  Frame(APP_REF.window)
-        APP_REF.viewports['int1'].config(bg='#191d21')
-
-        APP_REF.viewports["int1Button"]   = Button(APP_REF.viewports['int1'], text="import interview", command = lambda : Utilities.import_file(APP_REF,scrolled_text=APP_REF.viewports["window1"]))
-        APP_REF.viewports['int1Button'].grid(sticky='nsew',row=0,column=0,padx=0,pady=0)
-
-        APP_REF.viewports['int1'].grid(row=1,column=1,padx=0,pady=0,sticky='nsew')
-
-
-        APP_REF.viewports['window1'].config(bg='#ebe1be')
-        APP_REF.viewports['BLOCK1'].columnconfigure(0,weight=1)
-        APP_REF.viewports['BLOCK1'].rowconfigure(0,weight=1)
-
-        APP_REF.viewports['window1'].grid(sticky='nsew',row=0,column=0,padx=4,pady=4)
-        APP_REF.viewports["BLOCK1"].grid(row=2,column=1,sticky='nsew', padx=10,pady=5)
-
-
+        self.build_block(APP_REF,1)
 
         if self.n_frames == 2:
-            APP_REF.viewports['int2'] =  Frame(APP_REF.window)
-            APP_REF.viewports['int2'].config(bg='#191d21')
-
-            APP_REF.viewports["int2Button"]   = Button(APP_REF.viewports['int2'], text="import interview", command = lambda : Utilities.import_file(APP_REF,scrolled_text=APP_REF.viewports["window2"]))
-            APP_REF.viewports['int2Button'].grid(sticky='nsew',row=0,column=0,padx=0,pady=0)
+            self.build_block(APP_REF,2)
 
 
-            APP_REF.viewports['int2'].grid(row=1,column=2,padx=0,pady=0,sticky='nsew')
+    def build_block(self, APP_REF, block_num):
+
+        # Create and configure the base frame 
+        block = Frame(APP_REF.window)
+        block.config(bg=self.style['block_bg']) 
+        block.columnconfigure(0,weight=1)
+        block.rowconfigure(0,weight=1)
+        block.rowconfigure(1,weight=2)
+
+        # Create the scrolled text portion
+        interview_container = ScrolledText(block, font=(APP_REF.settings['font'],APP_REF.settings['text_size']))
+        interview_container.config(bg=self.style['interview_bg'])
+        
+        # Create the options bar above the interview 
+        options_bar = Frame(block)         
+        options_bar.config(bg=self.style['optionbox_bg'])
+
+        #
+        import_button = Button(options_bar, text="import interview", command = lambda : Utilities.import_file(APP_REF,scrolled_text=interview_container))
+        import_button.grid(sticky='nsew',row=0,column=0,padx=0,pady=0)
 
 
+        options_bar.grid(row=0,column=0,padx=10,pady=0,sticky='nsew')
+        interview_container.grid(sticky='nsew',row=1,column=0,padx=10,pady=4,ipadx=10)
+        block.grid(row=1,column=block_num,sticky='nsew', padx=10,pady=5, rowspan=2)
 
-            APP_REF.viewports['window2'].config(bg='#ebe1be')
-            APP_REF.viewports['BLOCK2'].columnconfigure(0,weight=1)
-            APP_REF.viewports['BLOCK2'].rowconfigure(0,weight=1)
+        APP_REF.viewports[f"BLOCK{block_num}"] = block 
+        APP_REF.viewports[f"OPTIONSBAR{block_num}"] = options_bar
+        APP_REF.viewports[f"INTERVIEW{block_num}"] = interview_container
+        APP_REF.viewports[f"IMBUTTON{block_num}"] = import_button
 
-            APP_REF.viewports['window2'].grid(sticky='nsew',row=0,column=0,padx=4,pady=4)
-            APP_REF.viewports["BLOCK2"].grid(row=2,column=2,sticky='nsew', padx=10,pady=5)
+
 
 

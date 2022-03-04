@@ -1,3 +1,5 @@
 __pycache__\*
 speech
 __pycache__*
+*.wav
+*.mp3
