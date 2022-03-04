@@ -1,4 +1,7 @@
 __pycache__\*
 speech
 __pycache__*
-*archive*
+*.wav
+*.mp3
+*.WMA
+*m4a

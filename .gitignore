@@ -3,3 +3,5 @@ speech
 __pycache__*
 *.wav
 *.mp3
+*.WMA
+*.m4a
