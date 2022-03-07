@@ -1,0 +1,20 @@
+Category 0: 0.030*"yeah" + 0.016*"close" + 0.016*"greg pretty unique scenario left looking around guys like happen like going thing"
+
+Category 1: 0.019*"baseball passion" + 0.019*"grind" + 0.019*"helpful great"
+
+Category 2: 0.017*"okay" + 0.017*"graduating number like many" + 0.017*"like start acting like right first phase pool comp tanks dreger hell week classroom chatting buddies also making decision whole thing like people attract like people"
+
+Category 3: 0.057*"okay" + 0.029*"participant code black" + 0.015*"yeah"
+
+Category 4: 0.030*"yeah" + 0.016*"yeah michigan ohio states parents work" + 0.016*"death brother contributing factor keeping going last years"
+
+Category 5: 0.017*"okay" + 0.017*"want guys come back mature maybe frustrated areas less stressed areas" + 0.017*"interviewer code blue andrew ledford"
+
+Category 6: 0.032*"theres" + 0.017*"questions" + 0.017*"definitely better know whats coming"
+
+Category 7: 0.018*"years…" + 0.018*"softball questions start" + 0.018*"disciplined child"
+
+Category 8: 0.019*"first phase post hell week" + 0.019*"guys" + 0.019*"thank"
+
+Category 9: 0.016*"parents strict loose" + 0.016*"week" + 0.016*"yeah exactly small things enjoy"
+

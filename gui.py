@@ -7,7 +7,7 @@ import time
 
 from tkinter    import BitmapImage, Menu, Frame, TOP, RAISED
 from GuiTools   import *
-from Utilities  import *
+from Utilities  import Utilities, ImportedFile
 from modes      import *
 
 class GUI_APP:
@@ -68,27 +68,35 @@ class GUI_APP:
 
         # Used to globally track settings that are pertinent to 
         # the gui itself. height, width, name, color, etc... 
-        self.settings   =   {\
-                            'init_width'            :   w,\
-                            'init_height'           :   h,\
-                            'current_width'         :   w,\
-                            'current_height'        :   h,\
-                            'screen_res_width'      :   0,\
-                            'screen_res_height'     :   0,\
-                            'window_name'           :   n,\
-                            'resize'                :   False,\
-                            'running'               :   True,\
+        self.settings   =   {
+                            'init_width'            :   w,
+                            'init_height'           :   h,
+                            'current_width'         :   w,
+                            'current_height'        :   h,
+                            'screen_res_width'      :   0,
+                            'screen_res_height'     :   0,
+                            'window_name'           :   n,
+                            'resize'                :   False,
+                            'running'               :   True,
                             'main color'            : '#2E3338',
                             'font'                  : 'Times New Roman',
                             'text_size'             : 15,
-                            'main_theme_bg'         : "#222226"
+                            'main_theme_bg'         : "#222226",
+                            
+                        
                         }
 
         # Used to store the data (interviews and NLP models) that the
         # APP has access to.  
         self.data       =   {\
                             'loaded_files'          :   dict(),\
-                            'models'                :   dict(),\
+                            'models'                :   {
+                                            'classify'  : Algorithms.Classifier(),
+                                            'bert'      : Algorithms.BertEmbed(),
+                                            'topicSparseModel': Algorithms.TopicModeler('Sparse'),
+                                            'topicMultiModel': Algorithms.TopicModeler('Multi')
+
+                                                            },\
                         }
 
         # *DEPRECATED* 

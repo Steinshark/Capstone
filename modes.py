@@ -2,6 +2,7 @@ import os                                           # allows access to filepath
 from tkinter import Menu, RAISED, Frame, Label, Button, Entry, Tk, N, S, E, W, Y, X
 from tkinter.scrolledtext import *
 from Utilities import Utilities
+from Utilities import Algorithms
 import tkinter 
 class Splash:
     def __init__(self, APP_REF,n_frames=0):
@@ -41,6 +42,13 @@ class Splash:
 
 
 class WorkSession:
+
+    class work_block:
+        def __init__(self,n,components):
+            self.frame = n
+            self.interview_container = None 
+            self.components = components
+
     def __init__(self, APP_REF,n_frames=2):
         self.n_frames = n_frames
         
@@ -51,6 +59,13 @@ class WorkSession:
                         'optionbox_bg'  : "#191d21",
                         'interview_bg'  : '#FFF8ED'
         }
+
+
+        self.work_block = {}
+
+        #for i in range(n_frames):
+        #    self.work_block[i] = work_block(i)
+
         # Ensure that we start with a clean slate 
         for w in APP_REF.window.winfo_children():
             w.destroy()
@@ -120,13 +135,13 @@ class WorkSession:
                                     'workspace'                 :   Frame(APP_REF.window,bg='blue'),
 
         }
-        self.build_block(APP_REF,1)
 
-        if self.n_frames == 2:
-            self.build_block(APP_REF,2)
+        for i in range(self.n_frames):
+            self.work_block[i] = self.build_block(APP_REF,i,WorkSession.work_block(i,{}))
 
+    def build_block(self, APP_REF, block_num, this_block):
 
-    def build_block(self, APP_REF, block_num):
+        items = {}
 
         # Create and configure the base frame 
         block = Frame(APP_REF.window)
@@ -143,20 +158,37 @@ class WorkSession:
         options_bar = Frame(block)         
         options_bar.config(bg=self.style['optionbox_bg'])
 
-        #
-        import_button = Button(options_bar, text="import interview", command = lambda : Utilities.import_file(APP_REF,scrolled_text=interview_container))
+        # Buttons
+        import_button = Button(options_bar, text="import interview", command = lambda : Utilities.import_file(APP_REF,work_block=this_block))
         import_button.grid(sticky='nsew',row=0,column=0,padx=0,pady=0)
+
+        cluster_button = Button(options_bar, text="cluster interview", command = lambda : APP_REF.data['models']['classify'].run(APP_REF))
+        cluster_button.grid(sticky='nsew',row=0,column=1,padx=0,pady=0)
 
 
         options_bar.grid(row=0,column=0,padx=10,pady=0,sticky='nsew')
         interview_container.grid(sticky='nsew',row=1,column=0,padx=10,pady=4,ipadx=10)
         block.grid(row=1,column=block_num,sticky='nsew', padx=10,pady=5, rowspan=2)
 
-        APP_REF.viewports[f"BLOCK{block_num}"] = block 
-        APP_REF.viewports[f"OPTIONSBAR{block_num}"] = options_bar
-        APP_REF.viewports[f"INTERVIEW{block_num}"] = interview_container
-        APP_REF.viewports[f"IMBUTTON{block_num}"] = import_button
 
+        APP_REF.viewports[f"BLOCK{block_num}"] = block 
+        items[f"BLOCK{block_num}"] = block
+
+        APP_REF.viewports[f"OPTIONSBAR{block_num}"] = options_bar
+        items[f"OPTIONSBAR{block_num}"] = options_bar
+
+        APP_REF.viewports[f"INTERVIEW{block_num}"] = interview_container
+        items[f"INTERVIEW{block_num}"] = interview_container
+  
+        APP_REF.viewports[f"IMBUTTON{block_num}"] = import_button
+        items[f"IMBUTTON{block_num}"] = import_button
+
+        APP_REF.viewports[f"CLBUTTON{block_num}"] = cluster_button
+        items[f"CLBUTTON{block_num}"] = cluster_button
+
+        this_block.components = items
+        this_block.interview_container = interview_container
+        return this_block
 
 
 
