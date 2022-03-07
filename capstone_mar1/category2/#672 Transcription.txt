@@ -8,414 +8,208 @@ Interviewer (Code in blue): Dr. Deirdre Dixon
 
 Participant (Code in black): #672
 
-
-
 Deirdre: So, this is Dr. Deirdre Dixon from the University of Tampa, it's the sixth of January, and I'm interviewing Candidate 672, and do you mind if I record?
-
-
 
 672: Oh yeah, it's fine.
 
-
-
 Deirdre: Okay, great, thank you. So, what phase did you leave?
-
-
 
 672: Uh first phase.
 
-
-
 Deirdre: What class were you in?
-
-
 
 672: 351.
 
-
-
 Deirdre: Then how many weeks ago did you leave? How many weeks?
-
-
 
 672: Oh man, that was October, late October. It was 1-1 of 351.
 
-
-
 Deirdre: Okay. Great. Then take a minute and tell me a little bit about your childhood. Are you an only child? Where'd you grow up? Are your parents still together? Did you play sports?
-
-
 
 672: Yeah uh like, stable household, parents were together, upper-middle class, I would say, Eastern shore of Maryland. Spent the summers in Cape May/Stone Harbor, New Jersey. They had a beach house over there. Um I have a sister who is older and resented me. I was the embarrassing little brother, so uh we didn't interact a whole lot, except-
 
-
-
 Deirdre: How much older was she?
-
-
 
 672: Three years. So uh yeah, but if we interacted, it was usually we were fighting.
 
-
-
 Deirdre: Okay.
-
-
 
 672: But I had a lot of friends, kind of like in the neighborhood. So I wasn't really particularly like alone or isolated.
 
-
-
 Deirdre: Okay, if you had to describe your personality in three traits, what would you say?
-
-
 
 672: Oh, um unconventional, weird, and fit, I guess.
 
-
-
 Deirdre: Okay. No, that's perfect. What'd you do in the past five years, prior to training?
-
-
 
 672: Oh I'm a Submariner.
 
-
-
 Deirdre: Okay. I'm not Navy, so I don't know what any of that means.
-
-
 
 672: Yeah, that's fine. Yeah.
 
-
-
 Deirdre: Okay, so you're-
-
-
 
 672: Submarine, underwater.
 
-
-
 Deirdre: Okay. Then what's that other thing?
-
-
 
 672: That's diver, but it's just it's not Navy diver, that's just a scuba ... scuba qualification.
 
-
-
 Deirdre: Alright, so did you go to high school and then just join the Navy?
-
-
 
 672: I did high school, and then I had terrible grades in high school. I went to UMBC, University of Maryland and Baltimore College, the honors school. I spent most of my time... I hated school, obviously, so I just kind of sat in my room and played video games and then dropped out spring semester. I kind of uh just worked like odd jobs, and then lived at friends' houses for a few years, and moved back to my parents' house for a few months before I left for the Navy.
 
-
-
 Deirdre: Okay, so you've probably spent five years in between graduating from high school and then coming to BUD/S?
-
-
 
 672: Yeah, at least, if it wasn't... So I graduated in 2012, and BUD/S was in...
 
-
-
 Deirdre: 2021.
-
-
 
 672: Yeah, so it was a while.
 
-
-
 Deirdre: Okay, all right, so it was a few more years. Okay. Could you think of any things that had an impact on your life, crucible experiences, or just experiences that really changed you before you came to BUD/S?
-
-
 
 672: Oh, yeah. Definitely. I think social rejection played a large part in me wanting to come do something that would make me stand out.
 
-
-
 Deirdre: Okay. Can you talk a little bit more about that, the social rejection?
-
-
 
 672: Definitely kind of being a smaller, nerdy kid growing up, particularly in high school because I kind of like stopped doing athletics. In middle school, I was forced to, and I was forced to do athletics in high school, but I had more freedom, so I kind of slacked off a lot more. Uh I went to boarding school, which I probably should have mentioned. I got kicked out of that school, which was obviously a turning point. I got kicked out of that school in the beginning of my junior year, I think. Then I went to a public school that was down the road from my parents' house.
 
-
-
 Deirdre: How do you think that impacted your BUD/S experience?
-
-
 
 672: Oh, jeez. I would say I'm a completely different person now than I was then, um just because I got into fitness, um you know people change, mature. High school was you know nine years ago. So yeah, I'm totally ... I would say I'm a totally different person now.
 
-
-
 Deirdre: So, you were forced to do sports in high school, but you didn't really like it?
-
-
 
 672: Yeah, definitely a benchwarmer, just did what I had to do to get by.
 
-
-
 Deirdre: But then you changed something in your life and you decided you liked fitness.
-
-
 
 672: Yeah, I think after kind of like failing out of college and spending basically three years in my parents' basement, or like friends' houses, like just sitting in front of a computer playing World of Warcraft, I kind of got like sick of that, and I was like, "Okay, let's try to turn this around". So I started doing like fitness and stuff, which at the time was like I didn't know a lot of people that were into fitness, so it was just like whatever people on YouTube or whatever were doing, which I think is pretty common nowadays.
 
-
-
 Deirdre: Okay, thank you. So, what led you to the Navy?
-
-
 
 672: My dad is one of the athletic directors at the Naval Academy.
 
-
-
 Deirdre: Oh.
-
-
 
 672: I actually started the Navy as a nuke, and then made it all the way to the end of the nuke pipeline. I'm not sure if you're familiar with that. It's very academic, which obviously I hated. But um, they kind of incentivize it by offering people like... You get ranked up to E4 automatically, and then they give you like... Graduating from the school, you get like 12 grand and then your reenlistment bonuses are usually about 100 to 120 grand, so there's a huge like financial incentive.
 
-
-
 Deirdre: Wow, yeah.
-
-
 
 672: That was kind of my motivation. No one really likes working in the nuclear field, it's really miserable, but the Navy makes it a good deal. Um, so I made it all the way to the end of that pipeline, and I guess that was definitely a turning point too, where it's like, "Hey, this academic stuff is like not for me. Like not at all." I had gotten into fitness before that, and I was like, "Okay, let's kind of like full-send on something fitness-related, something the total opposite of what that nuclear pipeline is." Which is this, so it just kind of worked as I was... I volunteered for submarines so I could go do the scuba thing, which has like kind of gotten me on the path to coming here.
 
-
-
 Deirdre: Okay. Was joining the Navy a spur-of-the-moment thing, or had you thought about it before?
-
-
 
 672: It was like, "I definitely need to get out of my parents' basement."
 
-
-
 Deirdre: Yeah, but just cause your dad was at the Naval Academy doesn't necessarily mean-
-
-
 
 672: Yeah, that was more... I actually called the Air Force first, and they didn't call me back. I was actually in the Navy for six months when they finally returned my call, like a year and a half later.
 
-
-
 Deirdre: Oh my gosh. That's funny.
-
-
 
 672: And um yeah, so I was just like, "Yeah, I'll just do Navy, I guess".
 
-
-
 Deirdre: Okay. All right. That's fair enough. What do you think motivates you on a daily basis?
-
-
 
 672: Uh Desire to be successful.
 
-
-
 Deirdre: Okay. Tell me about what happened at BUD/S. What was your experience like?
-
-
 
 672: Uh I was doing really well up until uh... A log of PT in 1-1, I was actually crushing 1-1 with the grinder PT, which are a four-mile, did a bunch of other stuff. A log of PT, they had us do pretty much nothing but lunges and hot laps, which is where you go over the dunes. When I was preparing for BUD/S, I kind of put the weights down and focused more on my run, which was my weakness at the time, which ended up being like a strength when I got out here. Well, maybe not a strength compared to all these people, but I was in the middle of the pack with the run, which I thought was good for me. Yeah, run, swim, so all the calisthenics. My O-course times were pretty exceptional, like probably top 10%, top 10% of the course times.
 
-
-
 Deirdre: Wow.
-
-
 
 672: Yeah, I just like spent a whole year kind of... I still weight trained, but maybe not as much as I should, I think uh. Yeah my legs just ceased to function. I made it through that like, I think it was like a two-and-a-half or three-hour-long log PT session on 1-1, and both my quads, particularly the outside of the quads, the uh what's that? The vastus lateralis or something it's called, were uh cramped. So like I was at the back of the pack running to lunch, like kind of shuffling along. I told myself, "Okay, I'm going to eat some food, and then hopefully it'll get better. 30 minutes or an hour will go by and this will go away," because they're going to have us do logs again, which I knew wasn't going to be as severe. Um It was just my legs were just way worse on my way back, I could barely run. It was like walking on stilts. Like Forrest Gump when he's got the braces on his legs. I was like, "There's no way, if this hasn't improved, there's no way I'm going to be able to, I'm just going to end up getting injured." So I told the class there, "Hey I'm going to DOR. Can you make sure my boat crew gets an extra guy?" Because I didn't want to leave them a man down. He pulled a guy from one of the taller guys' boat crews. They usually struggle less, because they're bigger compared to a lot others. Um so I felt less guilty.
 
-
-
 Deirdre: So you wound up leaving on 1-1 or-
-
-
 
 672: 1-1, yeah.
 
-
-
 Deirdre: 1-1. Okay.
-
-
 
 672: After lunch on 1-1. Yeah.
 
-
-
 Deirdre: So you kind of were into fitness? Did the fitness that they were doing here surprise you, or...
-
-
 
 672: No, not up until that point, no. I hadn't really struggled. I mean everyone struggles because of how they push you right uh, but it wasn't until it particularly lunges and hot laps for like two or three hours that it kind of got me.
 
-
-
 Deirdre: Tell me about a time when you made a difficult decision during training at BUD/S, and what went through your mind, and can you give me an example?
-
-
 
 672: Hmm. Difficult decision. I had never been put in situations where it was like, "Oh, I should choose between helping a buddy and like you know finishing whatever". So that's a hard one for me to uh... I would have to think hard about that. That might.
 
-
-
 Deirdre: That's okay.
 
-
-
 672: Yeah.
-
-
 
 Deirdre: Is there anything that you would have done differently in BUD/S?
 
-
-
 672: Not in BUD/S, but I think my preparation. One thing I noticed, all the guys that are still in my class, they're like hands-down the guys that works like the hardest. Um definitely could have put in more work in prep. One thing I noticed that all these guys do is they ... they stretch. It's mostly the guys that made it a lot further, like to Hell Week, they all stretch. I had a roommate who made it to day three of Hell Week and he was an older guy. He was like 31 or 32 years old, and he uh was very religious about stretching and like doing yoga sorts of things. He would do it every morning and he would do it every night, if not sometimes three times a day. That may have played a role in my body's ability to not deal with that.
-
-
 
 Deirdre: Okay. Would you ever consider going back? I've interviewed a lot of grads, people who graduated from BUD/S, and I was actually shocked at the number of people who didn't make it on the first try, went back to the fleet, and then came back. Is that something you'd consider?
 
-
-
 672: Uh I am on the older side, but um-
-
-
 
 Deirdre: How old are you?
 
-
-
 672: 27, almost 28.
 
-
-
 Deirdre: Okay.
-
-
 
 672: 28 in April.
 
-
-
 Deirdre: What's the-
-
-
 
 672: The cutoff's 28, but I talked to them about it, because I did the exit interview with you, and they're like, "Yeah, you can come back. Just get [inaudible 00:12:22] no big deal." I don't know if they're... I heard rumors they're changing the pipeline to not let people come back, but my goal is to maintain my fitness. I'm headed to shore duty in um Hawaii. You know if two years go by, because you have to wait 18 months or two years before you reapply, um if I can maintain this fitness level that I'm at while improving, and then if I decide to come back, great. If I don't, well hey, I'm still in really good shape and I can go do whatever, so that's fine.
 
-
-
 Deirdre: Okay. Thanks. Then what practices did you use, like physical, mental, spiritual, to push through any challenges that you had?
-
-
 
 672: Um I definitely have some faith. Um ... try to uh ... that's a hard one.
 
-
-
 Deirdre: Well, how did that manifest itself?
-
-
 
 672: I would definitely, if we were going into something that I knew was going to be really challenging, kind of just just pray in my head. Yeah, I made it through everything up to that point. Obviously there's no way to credit that to you know.
 
-
-
 Deirdre: Right. We're just trying to find out what different people do. What event did you struggle with the most, would you say? Was it those lunges?
-
-
 
 672: It was definitely um log PT in general.
 
-
-
 Deirdre: Okay. Then do you think your class liked you?
 
-
-
 672: Yeah.
-
-
 
 Deirdre: Okay.
 
-
-
 672: Obviously, there's some of these people that are like really young and get into like conflicts, because they're still like high-schoolers, but it's stupid stuff. It's not really anything that's like personal.
-
-
 
 Deirdre: Did you think there was anything different about those guys who made it?
 
-
-
 672: Yeah, they definitely were the people that, of the guys that I know there still, are the guys that worked like a lot harder.
-
-
 
 Deirdre: Okay. That makes sense. The guys that worked harder.
 
-
-
 672: Yeah.
-
-
 
 Deirdre: Before BUD/S or during BUD/S?
 
-
-
 672: Both.
-
-
 
 Deirdre: Both? Okay. Then we're trying to write these articles, and we've got some published already, but what we want to do is maybe help the people who haven't come to BUD/S yet. So what should I have asked you that I didn't ask you? What would you wish you would have known two years ago before you came to BUD/S?
 
-
-
 672: So um, one thing that you can't do is you can't give 100% all the time. It's just not physically possible. I think that's a mistake that I made. I think you need to know ... um ... you need to know when to go 100%, you need to know when to stand back a little, and then you need to know when to cheat. Those are the three things that if you can do those at the right time, and know when to like, "Okay the instructors aren't looking, let's back off a little bit." Or like, "Hey, this is a time [inaudible 00:15:20], and we have to put out [inaudible 00:15:21]." There's certain things you need to absolutely put out 100%. Like if I if I could comfortably run, like some of these guys are extremely fast and they can run 25-minute, 26-minute, the four miles, right? If I knew I could do that comfortably, I would definitely sandbag a little bit. So going in, I think you need to go into BUD/S being able to exceed the expectations. So knowing what the expectations are, getting your body to a point where you can exceed those expectations so that when you are doing the four-mile or the swim or the logs or whatever, you can sandbag a little bit to like save yourself some energy. So I think that's just strategy.
-
-
 
 Deirdre: What about your third thing? The cheating part, what do you think would help with that? Or you just mean that you're not pushing yourself?
 
-
-
 672: Yeah yeah, that's what I mean. It's like, "Oh the instructors aren't looking, let's..." But that can cost you if you don't do it correctly. If they see you doing that, it can really cost you, it can make things worse.
-
-
 
 Deirdre: Some people talked about things that they did off... Not off campus, but while they weren't right at the program, maybe things that they took or did-
 
-
-
 672: Like drugs or like steroids or something like that?
-
-
 
 Deirdre: Yeah.
 
-
-
 672: There's definitely people that do. I don't think that's a... I think for preparation, that could be part of your strategy if you're on a tight timeline to prepare. Like I was I got really short-fused orders to come to um prep. So if someone was in a situation like that, and they weren't prepared and they knew they weren't prepared, they could try. The problem with that is doing like drugs or any of that stuff to try to get yourself there is that you're not going to be able to stick a needle in your ass in Hell Week. Or like ... Even like people that drink a lot of coffee, I was off caffeine for like all of prep and all of BO, because I knew that all these guys doing all this caffeine and stuff, once they got to Hell Week and they didn't have access to that or any time during training, they're just going to crash and burn. I think that did happen to a lot of people. You would see guys after like class go, and they would be drinking energy drinks. I think that's kind of universally stupid. It's not that hard to get off of caffeine. It takes two or three days tops for the headaches to go away.
-
-
 
 Deirdre: Yeah. I agree with that. Okay. Thanks. This was super helpful.

@@ -22,6 +22,9 @@ def dataExtract(filepathlist_list):
     for i, filepathlist in enumerate(filepathlist_list):
         dataDict["category"+str(i+1)] = []
         for filepath in filepathlist:
+            if not os.path.isfile(filepath) or not filepath.endswith(".txt"):
+                print("ERROR: Please choose file with correct format")
+                return -1
             with open(filepath) as f:
                 f_info = f.read().split("\n")
                 f_info = list(filter(None, f_info))
@@ -106,6 +109,8 @@ if __name__ == '__main__':
 
     #Extract data
     dataDict = dataExtract(filepathlist_list)
+    if dataDict == -1:
+        exit(2)
 
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
     config = BertConfig.from_pretrained('bert-base-uncased', output_hidden_states=True)

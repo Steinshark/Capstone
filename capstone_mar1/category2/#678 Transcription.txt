@@ -8,8 +8,6 @@ Interviewer (Code in blue): CDR Andrew Ledford
 
 Participant (Code in black): #678
 
-
-
 CDR: Do you mind if I record this?
 
 678:  I don't mind at all.

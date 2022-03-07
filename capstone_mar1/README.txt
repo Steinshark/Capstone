@@ -50,3 +50,18 @@ sparseldamatrix_topics.py
 Main call: sparseldamatrix_topics(filepath_list, num_topics)
 Description: Uses a sparse matrix to do LDA topic modeling and writes the topics
 to the sparseldamatrix_topics.txt file
+
+splitdata.py
+Main call: def splitdata(filepathlist_list):
+Additional functions: def file_to_clean_list(filepath):
+Description: Takes in a list of a list of paths for each category. It prints out
+the first 10 lines of an interview and uses the terminal to prompt the user to
+clarify who is the interviewer. It assumes the speech is divided every other line.
+The interviewer/interviewee name is also stripped off ("A:" or "Interviewer:" etc)
+from the beginning if there are names. But the names must be less than 10 characters
+long. This is very specific to our data set and does not always work for our
+data set either. The lines from each doc is written into the same file. But at the
+end of the liens from each file, it writes "~~END~~'{filepath}'~~". This can be
+skipped by the parser or can possibly be useful to determine the files. The
+user can input a number outside of 0-10 to skip the interview if the format is
+incorrect.
