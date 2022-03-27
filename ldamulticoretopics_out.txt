@@ -1,0 +1,20 @@
+Category 0: 0.034*"going" + 0.034*"kinda" + 0.018*"class"
+
+Category 1: 0.043*"definitely" + 0.018*"i’m" + 0.018*"gonna"
+
+Category 2: 0.021*"military" + 0.021*"sure" + 0.021*"special"
+
+Category 3: 0.033*"decision" + 0.025*"come" + 0.025*"year"
+
+Category 4: 0.023*"things" + 0.023*"guys" + 0.023*"perspective"
+
+Category 5: 0.043*"buds" + 0.032*"people" + 0.032*"first"
+
+Category 6: 0.028*"army" + 0.028*"buds" + 0.028*"he’s"
+
+Category 7: 0.037*"college" + 0.028*"brother" + 0.028*"great"
+
+Category 8: 0.039*"know" + 0.030*"laughing" + 0.020*"class"
+
+Category 9: 0.026*"could" + 0.026*"college" + 0.023*"know"
+

@@ -1,0 +1,2 @@
+Cluster 1: ['uhm', 'really', 'p', 'yeah', 'know', 'uh', 'think', 'um', 'interviewer', 'like']
+Cluster 2: ['know', 'ya', 'would', 'really', 'uh', 'think', 'um', 'ok', 'interviewer', 'like']

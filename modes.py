@@ -99,26 +99,26 @@ class WorkSession:
         }
 
         # For each dropdown, add commands
-        self.tool_dropdown['session'].add_command(label='new',command = lambda x : x)
-        self.tool_dropdown['session'].add_command(label='save',command = lambda x : x)
-        self.tool_dropdown['session'].add_command(label='load',command = lambda x : x)
+        #self.tool_dropdown['session'].add_command(label='new',command = lambda x : x)
+        self.tool_dropdown['session'].add_command(label='save',command = lambda : Utilities.save_session(APP_REF))
+        self.tool_dropdown['session'].add_command(label='load',command = lambda : Utilities.load_session(APP_REF))
 
-        self.tool_dropdown['file'].add_command(label='import',command = lambda x : x)
-        self.tool_dropdown['file'].add_command(label='export',command = lambda x : x)
-        self.tool_dropdown['file'].add_command(label='replace',command = lambda x : x)
+        self.tool_dropdown['file'].add_command(label='import',command = lambda : Utilities.import_files(APP_REF))
+        #self.tool_dropdown['file'].add_command(label='export',command = lambda x : x)
+        #self.tool_dropdown['file'].add_command(label='replace',command = lambda x : x)
 
 
-        self.tool_dropdown['edit'].add_command(label='import',command = lambda x : x)
+        self.tool_dropdown['edit'].add_command(label='import',command = lambda : Utilities.import_files(APP_REF))
         self.tool_dropdown['edit'].add_command(label='view1',command = lambda  : self.__init__(APP_REF,n_frames=1))
         self.tool_dropdown['edit'].add_command(label='view2',command = lambda  : self.__init__(APP_REF,n_frames=2))
 
         # TOOLS DROPDOWN CREATIONS
-        self.tool_dropdown['tools'].add_command(label='word count',command = lambda x : x)
-        self.tool_dropdown['tools'].add_command(label='search',command = lambda x : x)
-        self.tool_dropdown['tools'].add_command(label='cluster',command = lambda x : x)
-        self.tool_dropdown['tools'].add_command(label='topic model',command = lambda x : x)
-        self.tool_dropdown['tools'].add_command(label='compare',command = lambda x : x)
-        self.tool_dropdown['tools'].add_command(label='compare',command = lambda x : x)
+        #self.tool_dropdown['tools'].add_command(label='word count',command = lambda x : x)
+        self.tool_dropdown['tools'].add_command(label='classify',command = lambda : APP_REF.data['models']['classify'].run(APP_REF))
+        self.tool_dropdown['tools'].add_command(label='cluster docs',command = lambda : APP_REF.data['models']['DocClusterer'].run(APP_REF))
+        self.tool_dropdown['tools'].add_command(label='topic model',command = lambda : APP_REF.data['models']['topicMultiModel'].run(APP_REF))
+        #self.tool_dropdown['tools'].add_command(label='compare',command = lambda x : x)
+        #self.tool_dropdown['tools'].add_command(label='compare',command = lambda x : x)
 
         # add the dropdown to the toolbar
         self.toolbar.add_cascade(label='Session',menu=self.tool_dropdown['session'])
@@ -165,6 +165,18 @@ class WorkSession:
         cluster_button = Button(options_bar, text="cluster interview", command = lambda : APP_REF.data['models']['classify'].run(APP_REF))
         cluster_button.grid(sticky='nsew',row=0,column=1,padx=0,pady=0)
 
+        topic_button = Button(options_bar, text="topic multi interview", command = lambda : APP_REF.data['models']['topicMultiModel'].run(APP_REF))
+        topic_button.grid(sticky='nsew',row=0,column=2,padx=0,pady=0)
+
+        topic_button2 = Button(options_bar, text="topic sparse model", command = lambda : APP_REF.data['models']['topicSparseModel'].run(APP_REF))
+        topic_button2.grid(sticky='nsew',row=0,column=5,padx=0,pady=0)
+
+
+        clusterD_button = Button(options_bar, text="cluster all interviews", command = lambda : APP_REF.data['models']['DocClusterer'].run(APP_REF))
+        clusterD_button.grid(sticky='nsew',row=0,column=3,padx=0,pady=0)
+
+        gpt_button = Button(options_bar, text="run GPT", command = lambda : APP_REF.data['models']['gpt'].run(APP_REF))
+        gpt_button.grid(sticky='nsew',row=0,column=4,padx=0,pady=0)
 
         options_bar.grid(row=0,column=0,padx=10,pady=0,sticky='nsew')
         interview_container.grid(sticky='nsew',row=1,column=0,padx=10,pady=4,ipadx=10)
@@ -186,6 +198,19 @@ class WorkSession:
         APP_REF.viewports[f"CLBUTTON{block_num}"] = cluster_button
         items[f"CLBUTTON{block_num}"] = cluster_button
 
+        APP_REF.viewports[f"TPBUTTON{block_num}"] = topic_button
+        items[f"TPBUTTON{block_num}"] = topic_button
+
+        APP_REF.viewports[f"GPBUTTON{block_num}"] = gpt_button
+        items[f"GPBUTTON{block_num}"] = gpt_button
+
+        APP_REF.viewports[f"TP2BUTTON{block_num}"] = topic_button2
+        items[f"TP2BUTTON{block_num}"] = topic_button2
+        
+
+        APP_REF.viewports[f"CLDBUTTON{block_num}"] = clusterD_button
+        items[f"CLDBUTTON{block_num}"] = clusterD_button
+        
         this_block.components = items
         this_block.interview_container = interview_container
         return this_block

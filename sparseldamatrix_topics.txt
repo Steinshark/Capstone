@@ -1,0 +1,6 @@
+Topic 0:
+['college' 'people' 'buds']
+Topic 1:
+['class' 'team' 'brother']
+Topic 2:
+['guys' 'decision' 'thing']

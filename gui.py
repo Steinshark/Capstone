@@ -9,6 +9,7 @@ from tkinter    import BitmapImage, Menu, Frame, TOP, RAISED
 from GuiTools   import *
 from Utilities  import Utilities, ImportedFile
 from modes      import *
+import spacy
 
 class GUI_APP:
     def __init__(self,width,height,w_name):
@@ -49,7 +50,6 @@ class GUI_APP:
         self.settings['current_width'       ]   = self.root.winfo_width()
         self.settings['current_height'      ]   = self.root.winfo_height()
     
-    
     # Change the layout of the GUI window
     def change_mode(self,mode,windows):
     # contains the init method of the class 'mode'              called with reference to self   and num interveiws to show
@@ -89,12 +89,14 @@ class GUI_APP:
         # Used to store the data (interviews and NLP models) that the
         # APP has access to.  
         self.data       =   {\
-                            'loaded_files'          :   dict(),\
+                            'loaded_files'          :   [],\
                             'models'                :   {
-                                            'classify'  : Algorithms.Classifier(),
+                                            'classify'  : Algorithms.Classifier(self),
                                             'bert'      : Algorithms.BertEmbed(),
                                             'topicSparseModel': Algorithms.TopicModeler('Sparse'),
-                                            'topicMultiModel': Algorithms.TopicModeler('Multi')
+                                            'topicMultiModel': Algorithms.TopicModeler('Multi'),
+                                            'DocClusterer'           : Algorithms.DocClusterer(self),
+                                            'gpt'           : Algorithms.gpt()
 
                                                             },\
                         }
