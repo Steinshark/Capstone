@@ -7,6 +7,9 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer #need insta
 import os
 import math
 from cleantextstring import *
+import numpy 
+import nltk
+nltk.download('stopwords')
 
 #returns bert embeddings of a sentence
 def sentenceEmbedding(sentence):
@@ -22,12 +25,15 @@ def dataExtract(filepathlist_list):
     for i, filepathlist in enumerate(filepathlist_list):
         dataDict["category"+str(i+1)] = []
         for filepath in filepathlist:
-            with open(filepath) as f:
-                f_info = f.read().split("\n")
-                f_info = list(filter(None, f_info))
-                #<add processing here>
-                for line in f_info:
-                    dataDict["category"+str(i+1)].append(cleantextstring(line))
+            try:
+                with open(filepath,'r',encoding='utf-8') as f:
+                    f_info = f.read().split("\n")
+                    f_info = list(filter(None, f_info))
+                    #<add processing here>
+                    for line in f_info:
+                        dataDict["category"+str(i+1)].append(cleantextstring(line))
+            except UnicodeDecodeError:
+                print(f"{filepath} did not cooperate")
     return dataDict
 
 def makeFeature(line):
@@ -76,11 +82,17 @@ def bertFromDict(category_line_list):
             if not features == -1:
                 featuresList.append(features)
 
+
     #store results of the embeddings into a file corresponding to the category
-    filename = category +"embeddings.txt"
-    with open(filename, "w") as f:
-        wr = csv.writer(f)
-        wr.writerows(featuresList)
+    numpy_arr = numpy.array([numpy.array(x) for x in featuresList])
+    input(numpy_arr)
+
+    filename = category +"_np_embeddings"
+    numpy.save(filename,numpy_arr)
+
+    #with open(filename, "w") as f:
+    #    wr = csv.writer(f)
+    #    wr.writerows(featuresList)
 
 #this function takes a sentence and then performs a sentiment analysis using a twitter vader sentiment tool
 def sentiment_scores(sentence):
@@ -91,13 +103,13 @@ def sentiment_scores(sentence):
     sentiment_dict = sid_obj.polarity_scores(sentence)
     return sentiment_dict
 
+
 if __name__ == '__main__':
     basepath = os.getcwd()
     numdirs = 2
     #Find names of dir
     filepathlist_list = []
     for i in range(numdirs):
-        
         dirpath = basepath+"/category"+str(i+1)
         filepathlist = []
         for file in os.listdir(dirpath):
