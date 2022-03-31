@@ -32,7 +32,7 @@ class DocClusterer:
             # hardcoded for now
             self.num_docs = 22
             self.num_words = 3321
-            self.k = 2
+            self.k = 5
 
         except:
             self.f_docword = None
