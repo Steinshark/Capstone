@@ -8,7 +8,7 @@ from tkinter.filedialog import askopenfile          # allows for file interactio
 from tkinter.filedialog import askdirectory         # allows for file interaction
 
 from scipy.sparse import lil_matrix  # , save_npz, load_npz
-from sklearn.cluster import MiniBatchKMeans
+from sklearn.cluster import KMeans
 from sklearn.decomposition import TruncatedSVD
 from sklearn.preprocessing import StandardScaler
 import fire
@@ -38,8 +38,11 @@ import matplotlib.pyplot as plt   # we had this one before
 import gensim
 import gensim.corpora as corpora
 import spacy
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer, TfidfTransformer
 from transformers import logging
+from sentence_transformers import SentenceTransformer
+import threading
+from tkinter.scrolledtext import *
 
 logging.set_verbosity_warning()
 
@@ -108,7 +111,6 @@ class Utilities:
                     APP_REFERENCE.data['file_paths'].append(file.name)
 
 
-                print(f"{file.name} added to data->file_paths and data->loaded_files")
 
         Utilities.save_session(APP_REFERENCE)
 
@@ -129,7 +131,6 @@ class Utilities:
             if not file.name in APP_REFERENCE.data['file_paths']: 
                 APP_REFERENCE.data['file_paths'].append(file.name)
 
-            print(f"{file.name} added to data->file_paths and data->loaded_files")
         else:
             print("File did not load correctly")
             return
@@ -578,10 +579,11 @@ class Algorithms:
             pop_up.destroy() 
             pop_up.quit()
 
-
+    # JENNY'S TM 
     class TopicModeler:
         def __init__(self,model_alg):
             self.model_alg =  model_alg # 'Sparse' or 'Multi'
+
 
         #Updated on 21MAR
         def sparseldamatrix_topics(self,filepath_list, num_topics, outfilename="sparseldamatrix_topics.txt", pos_tag_list=[], data_words=[]):
@@ -757,44 +759,45 @@ class Algorithms:
 
     class DocClusterer:
         def __init__(self,APP_REF):
-            self.n_clusters = 2 
-            self.batch_size = 32      
+            self.n_clusters = 20
+            self.APP_REF = APP_REF
 
-        def run2(self, APP_REF):
+        def model_run(self):    
+            self.n_clusters = int(self.cluster_val.get())
+            self.interview_container.insert(tkinter.END,f"running with {self.n_clusters} clusters\n")
 
-            # Create a vocab file and docwords
-            docwords,vocab,n_docs,n_words = self.create_vocab(APP_REF.data['file_paths'])
 
-            print(f"found vocab of size {len(vocab)}\nwith {n_docs} documents and {n_words} words")
-            input(vocab)
-            # Create and fill a matrix to hold the docwords 
-            dword_matrix = lil_matrix((n_docs+1,n_words+1))
+            stopwords = ["ledford","luning","cdr","deirdre","celeste","dr","dixon","ya","unintelligible"]
+            stopwords += ["patti","hmm","mm","umm","uh","interviewer","uhh","participant","um","ok"]
 
-            for line in docwords.split('\n')[:-1]:
+            # Creat the vocabs and docwords 
+            vectorizer = CountVectorizer(strip_accents="unicode",max_df =.5,stop_words = stopwords,ngram_range = (1,1))
+            tfidfer = TfidfTransformer(sublinear_tf=True)
 
-                docID, wordID, count = line.split()
-                print(f"{docID} {wordID} {count}")
-                dword_matrix[int(docID), int(wordID)] = int(count)
+            raw_text = [ re.sub(r"[0-9]|[']","", open(f,'r',encoding="utf_8").read()) for f in self.APP_REF.data['file_paths']]
 
-            # Convert to csr matrix 
+
+            dword_matrix = vectorizer.fit_transform(raw_text)
+            dword_matrix = tfidfer.fit_transform(dword_matrix)
+
+            vocab = vectorizer.get_feature_names_out()
             self.dword_matrix = dword_matrix.tocsr()
 
             # make K means model - default value should be 2
-            self.kmeansModel = MiniBatchKMeans(n_clusters=self.n_clusters,
-                                               random_state=0,
-                                               batch_size=32)
+            self.kmeansModel = KMeans(n_clusters=self.n_clusters)
 
             # Run the model on the data
-            print("fitting model")
+            self.interview_container.insert(tkinter.END,f"fitting model\n")
+
             self.kmeansModel.fit(self.dword_matrix)
-            print("predicting model")
+
+            self.interview_container.insert(tkinter.END,f"predicting model\n")
             self.clusters = self.kmeansModel.predict(self.dword_matrix)
             self.cluster_centers = self.kmeansModel.cluster_centers_
 
 
             # Show info from the model
             for i, doc in enumerate(self.cluster_centers):
-
                 # grab top 10 word IDs
                 top10_wid = sorted(range(len(doc)), key=lambda sub: doc[sub])[-10:]
 
@@ -804,112 +807,36 @@ class Algorithms:
                     comn_word_list.append(vocab[wid])
 
                 # **** PRINTING THE TOP 10 WORDS IN THE CLUSTER ****
-                print(f"Cluster {i}: {comn_word_list}")
-
-            print(f'Number of cluster documents: {self.n_clusters}')
-        def run(self, APP_REF):
-
-            # Create a vocab file and docwords
-            self.dword_matrix,vocab,n_docs,n_words = self.create_vocab(APP_REF.data['file_paths'])
-
-            # make K means model - default value should be 2
-            self.kmeansModel = MiniBatchKMeans(n_clusters=self.n_clusters,
-                                               random_state=0,
-                                               batch_size=32)
-
-            # Run the model on the data
-            print("fitting model")
-            self.kmeansModel.fit(self.dword_matrix)
-            print("predicting model")
-            self.clusters = self.kmeansModel.predict(self.dword_matrix)
-            self.cluster_centers = self.kmeansModel.cluster_centers_
+                self.interview_container.insert(tkinter.END,f"Cluster {i}: {comn_word_list}\n")
 
 
-            # Show info from the model
-            for i, doc in enumerate(self.cluster_centers):
+        # Create a window to begin running the algorithm in
+        def run(self,APP_REF):
+            self.run_thread = threading.Thread(target=self.model_run,args=[])
 
-                # grab top 10 word IDs
-                top10_wid = sorted(range(len(doc)), key=lambda sub: doc[sub])[-10:]
+            pop_up = tkinter.Tk()
+            pop_up.title("DocClustering")
 
-                # map wid to actual words
-                comn_word_list = []
-                for wid in top10_wid:
-                    comn_word_list.append(vocab[wid])
+            
+            # Create interactable modules 
+            mainframe = tkinter.Frame(pop_up)
 
-                # **** PRINTING THE TOP 10 WORDS IN THE CLUSTER ****
-                print(f"Cluster {i}: {comn_word_list}")
-
-            print(f'Number of cluster documents: {self.n_clusters}')
-        def create_vocab(self,filepaths):\
-
-            encodings = ['ascii', 'big5', 'big5hkscs', 'cp037', 'cp273', 'cp424',
-             'cp437', 'cp500', 'cp720', 'cp737', 'cp775', 'cp850', 'cp852', 'cp855', 'cp856', 'cp857', 'cp858', 'cp860', 'cp861', 'cp862', 'cp863', 'cp864', 'cp865', 'cp866', 'cp869',
-             'cp874', 'cp875', 'cp932', 'cp949', 'cp950', 'cp1006', 'cp1026', 'cp1125', 'cp1140', 'cp1250', 'cp1251', 'cp1252', 'cp1253', 'cp1254', 'cp1255', 'cp1256', 'cp1257', 'cp1258', 'cp65001',
-             'euc_jp', 'euc_jis_2004', 'euc_jisx0213', 'euc_kr', 'gb2312', 'gbk', 'gb1800', 'hz', 'iso2022_jp', 'iso2022_jp_1', 'iso2022_jp_2', 'iso2022_jp_2004', 'iso2022_jp_3', 'iso2022_jp_ext', 
-             'iso2022_kr', 'latin_1', 'iso8859_2', 'iso8859_3', 'iso8859_4', 'iso8859_5', 'iso8859_6', 'iso8859_7', 'iso8859_8', 'iso8859_9', 'iso8859_10', 'iso8859_11', 'iso8859_13', 'iso8859_14', 
-             'iso8859_15', 'iso8859_16', 'johab', 'koi8_r', 'koi8_t', 'koi8_u', 'kz1048', 'mac_cyrillic', 'mac_greek', 'mac_iceland', 'mac_latin2', 'mac_roman', 'mac_turkish', 'ptcp154', 
-             'shift_jis', 'shift_jis_2004', 'shift_jisx0213', 'utf_32', 'utf_32_be', 'utf_32_le', 'utf_16', 'utf_16_be', 'utf_16_le', 'utf_7', 'utf_8', 'utf_8_sig']
-            files = []
-            for n in filepaths:
-                try:
-                    f = open(n,'r',encoding='utf_8')
-                    files.append(f.read())
-                    f.close()
-                except UnicodeDecodeError:
-                    print("failed decode")
-                    pass
+            self.text = tkinter.Label(mainframe,text="Num Categories:",width=12,height=2)
+            self.cluster_val = tkinter.Entry(mainframe) 
+            self.interview_container = tkinter.scrolledtext.ScrolledText(mainframe, font=(APP_REF.settings['font'],APP_REF.settings['text_size']))
+            submit = tkinter.Button(mainframe,text="run model",command = lambda : self.run_thread.run(),width=12,height=2)
 
 
-            vect = TfidfVectorizer()
-            matr = vect.fit_transform(files)
 
-            n_docs,n_words = matr.shape
-            return matr, vect.get_feature_names_out(), n_docs, n_words
 
-            punctuation = ".,-!?()#:0123456789"
-            vocab_file = ''
-            unique_words = {}
+            self.text.pack()
+            self.cluster_val.pack()
+            submit.pack()
+            self.interview_container.pack(expand=True)
+            mainframe.pack(expand=True)
+            pop_up.mainloop()
+            
 
-            docwords = ''
-            files = {}
-
-            # Find vocab
-            for doc_num, filename in enumerate(filepaths):
-
-                # Ensure filename is a string 
-                if not isinstance(filename,str):
-                    print(f"encountered '{filename}' of type {type(filename)}")
-
-                # Find all unique words 
-                try:
-                    with open(filename,'r') as file:
-                        symb_cleaned = re.sub(r"[^\w | \s | \n]", "", file.read())
-                        file_contents = re.split(r"\s+|\n",symb_cleaned)
-
-                        for word in file_contents:
-                            word = word.lower()
-
-                            if not word in unique_words:
-                                #add it to the vocab
-                                unique_words[word] = len(unique_words)
-                                vocab_file += f"{word}\n"
-
-                                # find the doc count of word
-                                count = file_contents.count(word)
-                                wn = unique_words[word]
-                                docwords += f"{doc_num} {wn} {count}\n"
-                except ValueError:
-                    print("oops")
-
-            #reorder
-            vocab = {}
-            for key in unique_words:
-                wID = unique_words[key]
-                vocab[wID] = key
-                
-
-            print(docwords)
-            return docwords,vocab,doc_num,len(unique_words)
 
     class gpt:
         def __init__(self):
