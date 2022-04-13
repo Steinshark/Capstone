@@ -195,6 +195,43 @@ class Utilities:
 class Algorithms:
 
     @staticmethod
+    def run_alg_in_window(APP_REF,model):        
+        #Create a thread to do the algorithm computation on
+        exec_thread = threading.Thread(target=self.model_run,args=[])
+
+        #Create a window from which the model will be controlled from
+        pop_up = tkinter.Tk()
+        pop_up.title(model)
+
+        # Create interactable modules 
+        mainframe       = tkinter.Frame(pop_up)
+        output_container = tkinter.scrolledtext.ScrolledText(mainframe, font=(APP_REF.settings['font'],APP_REF.settings['text_size']))
+
+        # Create model specific buttons
+        model_params = {}
+        if model == "DocCluster":
+
+            # number category param  
+            model_params["cat text"]    = tkinter.Label(mainframe,text="Num Categories:",width=12,height=2)
+            model_params['cat num']     = tkinter.Entry(mainframe) 
+
+            model_params['execute']     = tkinter.Button(mainframe,text="run model",command = lambda : self.run_thread.run(),width=12,height=2)
+
+            
+
+
+
+
+        for item in model_params:
+            model_params.pack()
+            
+        output_container.pack(expand=True,fill=tkinter.BOTH)
+        mainframe.pack(expand=True,fill=tkinter.BOTH)
+        pop_up.mainloop()
+
+
+
+    @staticmethod
     def remove_stopwords(sentence, pos_tag_list):
         stop_words = stopwords.words('english')
         addl_stopwords = [
@@ -768,7 +805,7 @@ class Algorithms:
 
 
             stopwords = ["ledford","luning","cdr","deirdre","celeste","dr","dixon","ya","unintelligible"]
-            stopwords += ["patti","hmm","mm","umm","uh","interviewer","uhh","participant","um","ok"]
+            stopwords += ["patti","hmm","mm","umm","uh","interviewer","uhh","participant","um","ok","uhm"]
 
             # Creat the vocabs and docwords 
             vectorizer = CountVectorizer(strip_accents="unicode",max_df =.5,stop_words = stopwords,ngram_range = (1,1))
@@ -810,7 +847,7 @@ class Algorithms:
                 self.interview_container.insert(tkinter.END,f"Cluster {i}: {comn_word_list}\n")
 
 
-        # Create a window to begin running the algorithm in
+        # MAKE A STATIC METHOD AND PASS IN SCRIOLLED TEXST AND VAL FOR CLUSTER NUMS
         def run(self,APP_REF):
             self.run_thread = threading.Thread(target=self.model_run,args=[])
 
@@ -832,8 +869,8 @@ class Algorithms:
             self.text.pack()
             self.cluster_val.pack()
             submit.pack()
-            self.interview_container.pack(expand=True)
-            mainframe.pack(expand=True)
+            self.interview_container.pack(expand=True,fill=tkinter.BOTH)
+            mainframe.pack(expand=True,fill=tkinter.BOTH)
             pop_up.mainloop()
             
 

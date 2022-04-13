@@ -172,7 +172,7 @@ class WorkSession:
         topic_button2.grid(sticky='nsew',row=0,column=5,padx=0,pady=0)
 
 
-        clusterD_button = Button(options_bar, text="cluster all interviews", command = lambda : APP_REF.data['models']['DocClusterer'].run(APP_REF))
+        clusterD_button = Button(options_bar, text="cluster all interviews", command = lambda : Algorithms.run_alg_in_window(APP_REF,"Doc Cluster"))
         clusterD_button.grid(sticky='nsew',row=0,column=3,padx=0,pady=0)
 
         gpt_button = Button(options_bar, text="run GPT", command = lambda : APP_REF.data['models']['gpt'].run(APP_REF))
