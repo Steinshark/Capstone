@@ -89,16 +89,17 @@ class GUI_APP:
         # Used to store the data (interviews and NLP models) that the
         # APP has access to.  
         self.data       =   {\
-                            'loaded_files'          :   [],\
-                            'models'                :   {
-                                            'classify'  : Algorithms.Classifier(self),
-                                            'bert'      : Algorithms.BertEmbed(),
-                                            'topicSparseModel': Algorithms.TopicModeler('Sparse'),
-                                            'topicMultiModel': Algorithms.TopicModeler('Multi'),
-                                            'DocClusterer'           : Algorithms.DocClusterer(self),
-                                            'gpt'           : Algorithms.gpt()
+                            'loaded_files'          :   [],
+                            'file_paths'            :   []
+                        }
+        self.data['models'] = {
+                            'classify'              : Algorithms.Classifier(self),
+                            'bert'                  : Algorithms.BertEmbed(),
+                            'topicSparseModel'      : Algorithms.TopicModeler('Sparse'),
+                            'topicMultiModel'       : Algorithms.TopicModeler('Multi'),
+                            'DocClusterer'          : Algorithms.DocClusterer(self),
+                            'gpt'                   : Algorithms.gpt()
 
-                                                            },\
                         }
 
         # *DEPRECATED* 

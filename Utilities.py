@@ -6,22 +6,19 @@ import tkinter
 from tkinter.filedialog import askopenfiles         # allows for file interaction
 from tkinter.filedialog import askopenfile          # allows for file interaction
 from tkinter.filedialog import askdirectory         # allows for file interaction
-import json
 
 from scipy.sparse import lil_matrix  # , save_npz, load_npz
-import matplotlib.pyplot as plt
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.decomposition import TruncatedSVD
 from sklearn.preprocessing import StandardScaler
 import fire
 import json
-import os
 import numpy as np
 import tensorflow.compat.v1 as tf
 
 import model, sample, encoder
 import pandas as pd
-import numpy as np
+
 # NEEDED FOR MODELS 
 import csv
 import re
@@ -35,22 +32,25 @@ import nltk
 from nltk.corpus import stopwords
 from itertools import product
 from string import ascii_lowercase
-import numpy as np
 from scipy.sparse import coo_matrix
 import lda # had to pip install
 import matplotlib.pyplot as plt   # we had this one before
-import re
 import gensim
 import gensim.corpora as corpora
 import spacy
+from sklearn.feature_extraction.text import TfidfVectorizer
+from transformers import logging
+
+logging.set_verbosity_warning()
 
 nlp  = spacy.load('en_core_web_sm')
+
 # A clean container for imported files
 class ImportedFile:
     def __init__(self,filepath,contents_as_rb,txt=None):
         self.filepath = filepath
         if not txt is None:
-            self.contents_as_rb = None
+            self.contents_as_rb = contents_as_rb
             self.contents_as_text = txt
         else:
             self.contents_as_rb = contents_as_rb
@@ -74,6 +74,7 @@ class Utilities:
                                 ("pdf files", "*.pdf"),\
                                 # Probably will not include in final version
                                 ("all files", "*.*")  )
+    
     @staticmethod
     def get_os_root_filepath():
         return os.getcwd()
@@ -91,54 +92,55 @@ class Utilities:
     @staticmethod
     def import_files(APP_REFERENCE):
 
-        supported_types =   (   ("text files", "*.txt"),\
-                                ("word files", "*.docx"),\
-                                ("pdf files", "*.pdf"),\
-                                # Probably will not include in final version
-                                ("all files", "*.*")  )
-
         # Opens blocking tkinter file dialog
-        file_list = askopenfiles(mode='rb',filetypes=supported_types)
+        file_list = askopenfiles(mode='rb',filetypes=Utilities.supported_types)
+
+        for file in file_list:
+            if not file is None:
+
+                # Add the ImportedFile object to the loaded_files list 
+                file_object = ImportedFile(file.name,file.raw.read())
+
+                if not file_object in APP_REFERENCE.data['loaded_files']:
+                    APP_REFERENCE.data['loaded_files'].append(file_object)
+
+                if not file.name in APP_REFERENCE.data['file_paths']: 
+                    APP_REFERENCE.data['file_paths'].append(file.name)
 
 
-        # user picks a file which is added to the data dictionary of the APP
-        distinct_files = 0
+                print(f"{file.name} added to data->file_paths and data->loaded_files")
 
-        if not len(file_list) == 0:
-            for file in file_list:
-                if not file is None:
-                    distinct_files += 1
-                    # Add to the running instance's data  dictionary
-                    APP_REFERENCE.data['loaded_files'].append(ImportedFile(file.name,file.raw.read()))
         Utilities.save_session(APP_REFERENCE)
+
 
     # Upload single file to app
     @staticmethod
     def import_file(APP_REFERENCE,work_block=None):
-        supported_types =   (   ("text files", "*.txt"),\
-                                ("word files", "*.docx"),\
-                                ("pdf files", "*.pdf"),\
-                                # Probably will not include in final version
-                                ("all files", "*.*")  )
 
-        file = askopenfile(mode='rb',filetypes=supported_types)
+        file = askopenfile(mode='rb',filetypes=Utilities.supported_types)
 
-        # user picks a file which is added to the data dictionary of the APP
+        # Add file to the GUI
         if not file is None:
-            APP_REFERENCE.data['loaded_files'].append(ImportedFile(file.name,file.raw.read()))
-            #print(len(APP_REFERENCE.data['loaded_files'][file.name].lines))
-        else:
-            print("ope")
-        if not work_block.interview_container is None:
-            print('INSERTING')
-            work_block.interview_container.configure(state="normal")
+            file_object = ImportedFile(file.name,file.raw.read())
 
+            if not file_object in APP_REFERENCE.data['loaded_files']:
+                APP_REFERENCE.data['loaded_files'].append(file_object)
+
+            if not file.name in APP_REFERENCE.data['file_paths']: 
+                APP_REFERENCE.data['file_paths'].append(file.name)
+
+            print(f"{file.name} added to data->file_paths and data->loaded_files")
+        else:
+            print("File did not load correctly")
+            return
+
+        # Open the file in the view container if it exists     
+        if not work_block.interview_container is None:
+            work_block.interview_container.configure(state="normal")
             work_block.interview_container.delete('0.0',tkinter.END)
             text = APP_REFERENCE.data['loaded_files'][-1].contents_as_rb.decode()
             work_block.interview_container.insert(tkinter.END,f"{text}\n")
             work_block.interview_container.configure(state="disabled")
-        else:
-            print("oh no")
 
 
     # this method will be used to export the
@@ -155,18 +157,20 @@ class Utilities:
     # GUI APP
     @staticmethod
     def save_session(APP_REFERENCE):
-        filepaths = []
-        c_as_rb = [] 
 
+        # Keep track of the filepaths and rawbyte contents 
+        # Thereof
+        filepaths = []
+
+        # Save all filepaths and raw bytes 
         for f in APP_REFERENCE.data['loaded_files']:
             filepaths.append(f.filepath)
-            c_as_rb.append(f.contents_as_text)
 
-        save_dump = {   'settings' : APP_REFERENCE.settings,
-                        'fp' : filepaths,'rb' : c_as_rb,
-                        #'viewports': APP_REFERENCE.viewports
-                        }
+        # Create 1 dictionary to store everything in
+        save_dump = {   'settings'  : APP_REFERENCE.settings,
+                    }
 
+        # Serialize this dictionary and save to file
         save = open('session.tmp','w')
         save.write(json.dumps(save_dump))
 
@@ -187,31 +191,18 @@ class Utilities:
         APP_REFERENCE.settings = save_data['settings']
 
 
-
-
-from nltk.corpus import stopwords
-import re
 class Algorithms:
 
     @staticmethod
     def remove_stopwords(sentence, pos_tag_list):
         stop_words = stopwords.words('english')
-        stop_words.append("unintelligible")
-        stop_words.append("yeah")
-        stop_words.append("okay")
-        stop_words.append("yes")
-        stop_words.append("right")
-        stop_words.append("interviewer")
-        stop_words.append("interview")
-        stop_words.append("record")
-        stop_words.append("participant")
-        stop_words.append("really")
-        stop_words.append("think")
-        stop_words.append("well")
-        stop_words.append("around")
-        stop_words.append("also")
-        stop_words.append("like")
-        stop_words.append("recording")
+        addl_stopwords = [
+                        "unintelligible","yeah","okay","yes","right","interviewer",
+                        "interview","record","participant","really","think","well",
+                        "around","also","like", "recording"
+        ]
+        stop_words = stop_words + addl_stopwords
+
 
         word_list = []
         if pos_tag_list != []:
@@ -220,6 +211,7 @@ class Algorithms:
                     word_list.append(token.text)
         else:
             word_list = sentence.split()
+
         new_word_list = word_list.copy()
         for word in list(word_list):
             word_lower = word.lower()
@@ -232,7 +224,7 @@ class Algorithms:
     @staticmethod
     def cleantextstring(text, pos_tag_list=[]):
         text = text.lower()
-        punc = '''!()-[]{};:'"\,<>./?@#$%^&*_~''''”''“''…'
+        punc = '''!()-[]\{\};:'"\,<>./?@#$%^&*_~''''”''“''…'
         for char in text:
             if char in punc:
                 text = text.replace(char, "")
@@ -763,87 +755,161 @@ class Algorithms:
             pop_up.quit()
 
 
-
     class DocClusterer:
         def __init__(self,APP_REF):
-            try:
-                # doc init
-                self.f_docword = open("docword.interviews.txt", "r")
-                self.lines = self.f_docword.readlines()
-                # vocab init
-                self.vocab_file = open("vocab.interviews.txt", "r")
-                self.vocab_dict = {}
-                i = 1  # line number
-                for word in self.vocab_file:
-                    word = word.strip()
-                    self.vocab_dict[i] = word
-                    i += 1
-                # print(vocab_dict)
+            self.n_clusters = 2 
+            self.batch_size = 32      
 
-                # hardcoded for now
-                self.num_docs = 22
-                self.num_words = 3321
-                self.k = 2
-                self.app = APP_REF
+        def run2(self, APP_REF):
 
-            except ValueError:
-                self.f_docword = None
-                print("Req'd files do not exist.")
+            # Create a vocab file and docwords
+            docwords,vocab,n_docs,n_words = self.create_vocab(APP_REF.data['file_paths'])
 
-        # We then initialize the lil sparse matrix (docID x wordID) and fill them with the word counts.
-        # The rows represent the documents (docID) and the columns represent individual words (wordID).
-        # Afterwards, we convert the lil matrix to a csr to easily access the rows (documents).
-        def run(self, APP_REF):
-            # testing version (1st trail of removing stopwords)
-            # self.my_lil = lil_matrix((22+1, 3321+1))
-            self.my_lil = lil_matrix(
-                (self.num_docs+1, self.num_words+1))  # general version
+            print(f"found vocab of size {len(vocab)}\nwith {n_docs} documents and {n_words} words")
+            input(vocab)
+            # Create and fill a matrix to hold the docwords 
+            dword_matrix = lil_matrix((n_docs+1,n_words+1))
 
-            # populate the lil matrix
-            for line in self.lines:
+            for line in docwords.split('\n')[:-1]:
+
                 docID, wordID, count = line.split()
-                self.my_lil[int(docID), int(wordID)] = int(count)
+                print(f"{docID} {wordID} {count}")
+                dword_matrix[int(docID), int(wordID)] = int(count)
 
-            self.my_csr = self.my_lil.tocsr()
+            # Convert to csr matrix 
+            self.dword_matrix = dword_matrix.tocsr()
+
             # make K means model - default value should be 2
-            self.kmeansModel = MiniBatchKMeans(n_clusters=self.k,
+            self.kmeansModel = MiniBatchKMeans(n_clusters=self.n_clusters,
                                                random_state=0,
                                                batch_size=32)
 
-            self.kmeansModel.fit(self.my_lil)
-            self.clusters = self.kmeansModel.predict(self.my_lil)
+            # Run the model on the data
+            print("fitting model")
+            self.kmeansModel.fit(self.dword_matrix)
+            print("predicting model")
+            self.clusters = self.kmeansModel.predict(self.dword_matrix)
             self.cluster_centers = self.kmeansModel.cluster_centers_
 
-            # Using the cluster_centers, in each row (quintessential document
-            # of a particular cluster), I wanted to find the 10 largest counts'
-            # indices (wordID) so that I can map them to actual words. I
-            # thought this would give me the top 10 most commonly used words
-            # in that particular cluster:
-            ix = 1
 
-            # EVERETT ADDED 
-            writer = open("CLUSTERS.txt",'w')
-            for doc in self.cluster_centers:
+            # Show info from the model
+            for i, doc in enumerate(self.cluster_centers):
+
                 # grab top 10 word IDs
                 top10_wid = sorted(range(len(doc)), key=lambda sub: doc[sub])[-10:]
 
                 # map wid to actual words
                 comn_word_list = []
                 for wid in top10_wid:
-                    comn_word_list.append(self.vocab_dict[wid])
+                    comn_word_list.append(vocab[wid])
 
                 # **** PRINTING THE TOP 10 WORDS IN THE CLUSTER ****
-                print(f"Cluster {ix}: {comn_word_list}")
-                writer.write(f"Cluster {ix}: {comn_word_list}\n")
+                print(f"Cluster {i}: {comn_word_list}")
 
-                ix += 1
+            print(f'Number of cluster documents: {self.n_clusters}')
+        def run(self, APP_REF):
+
+            # Create a vocab file and docwords
+            self.dword_matrix,vocab,n_docs,n_words = self.create_vocab(APP_REF.data['file_paths'])
+
+            # make K means model - default value should be 2
+            self.kmeansModel = MiniBatchKMeans(n_clusters=self.n_clusters,
+                                               random_state=0,
+                                               batch_size=32)
+
+            # Run the model on the data
+            print("fitting model")
+            self.kmeansModel.fit(self.dword_matrix)
+            print("predicting model")
+            self.clusters = self.kmeansModel.predict(self.dword_matrix)
+            self.cluster_centers = self.kmeansModel.cluster_centers_
 
 
-                # EVERETT ADDED 
-            writer.close()
+            # Show info from the model
+            for i, doc in enumerate(self.cluster_centers):
 
-            print(f'Number of cluster documents: {self.k}')
+                # grab top 10 word IDs
+                top10_wid = sorted(range(len(doc)), key=lambda sub: doc[sub])[-10:]
 
+                # map wid to actual words
+                comn_word_list = []
+                for wid in top10_wid:
+                    comn_word_list.append(vocab[wid])
+
+                # **** PRINTING THE TOP 10 WORDS IN THE CLUSTER ****
+                print(f"Cluster {i}: {comn_word_list}")
+
+            print(f'Number of cluster documents: {self.n_clusters}')
+        def create_vocab(self,filepaths):\
+
+            encodings = ['ascii', 'big5', 'big5hkscs', 'cp037', 'cp273', 'cp424',
+             'cp437', 'cp500', 'cp720', 'cp737', 'cp775', 'cp850', 'cp852', 'cp855', 'cp856', 'cp857', 'cp858', 'cp860', 'cp861', 'cp862', 'cp863', 'cp864', 'cp865', 'cp866', 'cp869',
+             'cp874', 'cp875', 'cp932', 'cp949', 'cp950', 'cp1006', 'cp1026', 'cp1125', 'cp1140', 'cp1250', 'cp1251', 'cp1252', 'cp1253', 'cp1254', 'cp1255', 'cp1256', 'cp1257', 'cp1258', 'cp65001',
+             'euc_jp', 'euc_jis_2004', 'euc_jisx0213', 'euc_kr', 'gb2312', 'gbk', 'gb1800', 'hz', 'iso2022_jp', 'iso2022_jp_1', 'iso2022_jp_2', 'iso2022_jp_2004', 'iso2022_jp_3', 'iso2022_jp_ext', 
+             'iso2022_kr', 'latin_1', 'iso8859_2', 'iso8859_3', 'iso8859_4', 'iso8859_5', 'iso8859_6', 'iso8859_7', 'iso8859_8', 'iso8859_9', 'iso8859_10', 'iso8859_11', 'iso8859_13', 'iso8859_14', 
+             'iso8859_15', 'iso8859_16', 'johab', 'koi8_r', 'koi8_t', 'koi8_u', 'kz1048', 'mac_cyrillic', 'mac_greek', 'mac_iceland', 'mac_latin2', 'mac_roman', 'mac_turkish', 'ptcp154', 
+             'shift_jis', 'shift_jis_2004', 'shift_jisx0213', 'utf_32', 'utf_32_be', 'utf_32_le', 'utf_16', 'utf_16_be', 'utf_16_le', 'utf_7', 'utf_8', 'utf_8_sig']
+            files = []
+            for n in filepaths:
+                try:
+                    f = open(n,'r',encoding='utf_8')
+                    files.append(f.read())
+                    f.close()
+                except UnicodeDecodeError:
+                    print("failed decode")
+                    pass
+
+
+            vect = TfidfVectorizer()
+            matr = vect.fit_transform(files)
+
+            n_docs,n_words = matr.shape
+            return matr, vect.get_feature_names_out(), n_docs, n_words
+
+            punctuation = ".,-!?()#:0123456789"
+            vocab_file = ''
+            unique_words = {}
+
+            docwords = ''
+            files = {}
+
+            # Find vocab
+            for doc_num, filename in enumerate(filepaths):
+
+                # Ensure filename is a string 
+                if not isinstance(filename,str):
+                    print(f"encountered '{filename}' of type {type(filename)}")
+
+                # Find all unique words 
+                try:
+                    with open(filename,'r') as file:
+                        symb_cleaned = re.sub(r"[^\w | \s | \n]", "", file.read())
+                        file_contents = re.split(r"\s+|\n",symb_cleaned)
+
+                        for word in file_contents:
+                            word = word.lower()
+
+                            if not word in unique_words:
+                                #add it to the vocab
+                                unique_words[word] = len(unique_words)
+                                vocab_file += f"{word}\n"
+
+                                # find the doc count of word
+                                count = file_contents.count(word)
+                                wn = unique_words[word]
+                                docwords += f"{doc_num} {wn} {count}\n"
+                except ValueError:
+                    print("oops")
+
+            #reorder
+            vocab = {}
+            for key in unique_words:
+                wID = unique_words[key]
+                vocab[wID] = key
+                
+
+            print(docwords)
+            return docwords,vocab,doc_num,len(unique_words)
 
     class gpt:
         def __init__(self):
