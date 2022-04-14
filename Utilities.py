@@ -195,9 +195,12 @@ class Utilities:
 class Algorithms:
 
     @staticmethod
-    def run_alg_in_window(APP_REF,model):        
-        #Create a thread to do the algorithm computation on
-        exec_thread = threading.Thread(target=self.model_run,args=[])
+    def run_alg_in_window(APP_REF,model):    
+
+        # Algorithms 
+        algorithms = {  "Doc Cluster" : Algorithms.DocClusterer(APP_REF),
+                        "Classifier"  : Algorithms.Classifier(APP_REF)
+                        }    
 
         #Create a window from which the model will be controlled from
         pop_up = tkinter.Tk()
@@ -207,23 +210,27 @@ class Algorithms:
         mainframe       = tkinter.Frame(pop_up)
         output_container = tkinter.scrolledtext.ScrolledText(mainframe, font=(APP_REF.settings['font'],APP_REF.settings['text_size']))
 
+        #Create a thread to do the algorithm computation on
+        exec_thread = threading.Thread(target=algorithms[model].run_model,args=[])
+
         # Create model specific buttons
         model_params = {}
-        if model == "DocCluster":
+
+        if model == "Doc Cluster":
 
             # number category param  
             model_params["cat text"]    = tkinter.Label(mainframe,text="Num Categories:",width=12,height=2)
             model_params['cat num']     = tkinter.Entry(mainframe) 
+            model_params['execute']     = tkinter.Button(mainframe,text="run model",command = lambda : exec_thread.run(),width=12,height=2)
 
-            model_params['execute']     = tkinter.Button(mainframe,text="run model",command = lambda : self.run_thread.run(),width=12,height=2)
-
-            
-
-
-
-
+            # Set object vars 
+            algorithms['Doc Cluster'].output_container = output_container
+            algorithms["Doc Cluster"].cluster_val = model_params['cat num']
+        
+        elif model == "TopicModeler":
+            pass         
         for item in model_params:
-            model_params.pack()
+            model_params[item].pack()
             
         output_container.pack(expand=True,fill=tkinter.BOTH)
         mainframe.pack(expand=True,fill=tkinter.BOTH)
@@ -796,12 +803,14 @@ class Algorithms:
 
     class DocClusterer:
         def __init__(self,APP_REF):
-            self.n_clusters = 20
+            self.n_clusters = 2
+            self.output_container = None
+            self.cluster_val = None
             self.APP_REF = APP_REF
 
-        def model_run(self):    
+        def run_model(self):    
             self.n_clusters = int(self.cluster_val.get())
-            self.interview_container.insert(tkinter.END,f"running with {self.n_clusters} clusters\n")
+            self.output_container.insert(tkinter.END,f"running with {self.n_clusters} clusters\n")
 
 
             stopwords = ["ledford","luning","cdr","deirdre","celeste","dr","dixon","ya","unintelligible"]
@@ -824,11 +833,11 @@ class Algorithms:
             self.kmeansModel = KMeans(n_clusters=self.n_clusters)
 
             # Run the model on the data
-            self.interview_container.insert(tkinter.END,f"fitting model\n")
+            self.output_container.insert(tkinter.END,f"fitting model\n")
 
             self.kmeansModel.fit(self.dword_matrix)
 
-            self.interview_container.insert(tkinter.END,f"predicting model\n")
+            self.output_container.insert(tkinter.END,f"predicting model\n")
             self.clusters = self.kmeansModel.predict(self.dword_matrix)
             self.cluster_centers = self.kmeansModel.cluster_centers_
 
@@ -844,7 +853,7 @@ class Algorithms:
                     comn_word_list.append(vocab[wid])
 
                 # **** PRINTING THE TOP 10 WORDS IN THE CLUSTER ****
-                self.interview_container.insert(tkinter.END,f"Cluster {i}: {comn_word_list}\n")
+                self.output_container.insert(tkinter.END,f"Cluster {i}: {comn_word_list}\n")
 
 
         # MAKE A STATIC METHOD AND PASS IN SCRIOLLED TEXST AND VAL FOR CLUSTER NUMS
