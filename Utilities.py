@@ -6,22 +6,19 @@ import tkinter
 from tkinter.filedialog import askopenfiles         # allows for file interaction
 from tkinter.filedialog import askopenfile          # allows for file interaction
 from tkinter.filedialog import askdirectory         # allows for file interaction
-import json
 
 from scipy.sparse import lil_matrix  # , save_npz, load_npz
-import matplotlib.pyplot as plt
-from sklearn.cluster import MiniBatchKMeans
+from sklearn.cluster import KMeans
 from sklearn.decomposition import TruncatedSVD
 from sklearn.preprocessing import StandardScaler
 import fire
 import json
-import os
 import numpy as np
 import tensorflow.compat.v1 as tf
 
 import model, sample, encoder
 import pandas as pd
-import numpy as np
+
 # NEEDED FOR MODELS 
 import csv
 import re
@@ -35,22 +32,28 @@ import nltk
 from nltk.corpus import stopwords
 from itertools import product
 from string import ascii_lowercase
-import numpy as np
 from scipy.sparse import coo_matrix
 import lda # had to pip install
 import matplotlib.pyplot as plt   # we had this one before
-import re
 import gensim
 import gensim.corpora as corpora
 import spacy
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer, TfidfTransformer
+from transformers import logging
+from sentence_transformers import SentenceTransformer
+import threading
+from tkinter.scrolledtext import *
+
+logging.set_verbosity_warning()
 
 nlp  = spacy.load('en_core_web_sm')
+
 # A clean container for imported files
 class ImportedFile:
     def __init__(self,filepath,contents_as_rb,txt=None):
         self.filepath = filepath
         if not txt is None:
-            self.contents_as_rb = None
+            self.contents_as_rb = contents_as_rb
             self.contents_as_text = txt
         else:
             self.contents_as_rb = contents_as_rb
@@ -74,6 +77,7 @@ class Utilities:
                                 ("pdf files", "*.pdf"),\
                                 # Probably will not include in final version
                                 ("all files", "*.*")  )
+    
     @staticmethod
     def get_os_root_filepath():
         return os.getcwd()
@@ -91,54 +95,53 @@ class Utilities:
     @staticmethod
     def import_files(APP_REFERENCE):
 
-        supported_types =   (   ("text files", "*.txt"),\
-                                ("word files", "*.docx"),\
-                                ("pdf files", "*.pdf"),\
-                                # Probably will not include in final version
-                                ("all files", "*.*")  )
-
         # Opens blocking tkinter file dialog
-        file_list = askopenfiles(mode='rb',filetypes=supported_types)
+        file_list = askopenfiles(mode='rb',filetypes=Utilities.supported_types)
+
+        for file in file_list:
+            if not file is None:
+
+                # Add the ImportedFile object to the loaded_files list 
+                file_object = ImportedFile(file.name,file.raw.read())
+
+                if not file_object in APP_REFERENCE.data['loaded_files']:
+                    APP_REFERENCE.data['loaded_files'].append(file_object)
+
+                if not file.name in APP_REFERENCE.data['file_paths']: 
+                    APP_REFERENCE.data['file_paths'].append(file.name)
 
 
-        # user picks a file which is added to the data dictionary of the APP
-        distinct_files = 0
 
-        if not len(file_list) == 0:
-            for file in file_list:
-                if not file is None:
-                    distinct_files += 1
-                    # Add to the running instance's data  dictionary
-                    APP_REFERENCE.data['loaded_files'].append(ImportedFile(file.name,file.raw.read()))
         Utilities.save_session(APP_REFERENCE)
+
 
     # Upload single file to app
     @staticmethod
     def import_file(APP_REFERENCE,work_block=None):
-        supported_types =   (   ("text files", "*.txt"),\
-                                ("word files", "*.docx"),\
-                                ("pdf files", "*.pdf"),\
-                                # Probably will not include in final version
-                                ("all files", "*.*")  )
 
-        file = askopenfile(mode='rb',filetypes=supported_types)
+        file = askopenfile(mode='rb',filetypes=Utilities.supported_types)
 
-        # user picks a file which is added to the data dictionary of the APP
+        # Add file to the GUI
         if not file is None:
-            APP_REFERENCE.data['loaded_files'].append(ImportedFile(file.name,file.raw.read()))
-            #print(len(APP_REFERENCE.data['loaded_files'][file.name].lines))
-        else:
-            print("ope")
-        if not work_block.interview_container is None:
-            print('INSERTING')
-            work_block.interview_container.configure(state="normal")
+            file_object = ImportedFile(file.name,file.raw.read())
 
+            if not file_object in APP_REFERENCE.data['loaded_files']:
+                APP_REFERENCE.data['loaded_files'].append(file_object)
+
+            if not file.name in APP_REFERENCE.data['file_paths']: 
+                APP_REFERENCE.data['file_paths'].append(file.name)
+
+        else:
+            print("File did not load correctly")
+            return
+
+        # Open the file in the view container if it exists     
+        if not work_block.interview_container is None:
+            work_block.interview_container.configure(state="normal")
             work_block.interview_container.delete('0.0',tkinter.END)
             text = APP_REFERENCE.data['loaded_files'][-1].contents_as_rb.decode()
             work_block.interview_container.insert(tkinter.END,f"{text}\n")
             work_block.interview_container.configure(state="disabled")
-        else:
-            print("oh no")
 
 
     # this method will be used to export the
@@ -155,18 +158,20 @@ class Utilities:
     # GUI APP
     @staticmethod
     def save_session(APP_REFERENCE):
-        filepaths = []
-        c_as_rb = [] 
 
+        # Keep track of the filepaths and rawbyte contents 
+        # Thereof
+        filepaths = []
+
+        # Save all filepaths and raw bytes 
         for f in APP_REFERENCE.data['loaded_files']:
             filepaths.append(f.filepath)
-            c_as_rb.append(f.contents_as_text)
 
-        save_dump = {   'settings' : APP_REFERENCE.settings,
-                        'fp' : filepaths,'rb' : c_as_rb,
-                        #'viewports': APP_REFERENCE.viewports
-                        }
+        # Create 1 dictionary to store everything in
+        save_dump = {   'settings'  : APP_REFERENCE.settings,
+                    }
 
+        # Serialize this dictionary and save to file
         save = open('session.tmp','w')
         save.write(json.dumps(save_dump))
 
@@ -187,31 +192,62 @@ class Utilities:
         APP_REFERENCE.settings = save_data['settings']
 
 
-
-
-from nltk.corpus import stopwords
-import re
 class Algorithms:
+
+    @staticmethod
+    def run_alg_in_window(APP_REF,model):    
+
+        # Algorithms 
+        algorithms = {  "Doc Cluster" : Algorithms.DocClusterer(APP_REF),
+                        "Classifier"  : Algorithms.Classifier(APP_REF)
+                        }    
+
+        #Create a window from which the model will be controlled from
+        pop_up = tkinter.Tk()
+        pop_up.title(model)
+
+        # Create interactable modules 
+        mainframe       = tkinter.Frame(pop_up)
+        output_container = tkinter.scrolledtext.ScrolledText(mainframe, font=(APP_REF.settings['font'],APP_REF.settings['text_size']))
+
+        #Create a thread to do the algorithm computation on
+        exec_thread = threading.Thread(target=algorithms[model].run_model,args=[])
+
+        # Create model specific buttons
+        model_params = {}
+
+        if model == "Doc Cluster":
+
+            # number category param  
+            model_params["cat text"]    = tkinter.Label(mainframe,text="Num Categories:",width=12,height=2)
+            model_params['cat num']     = tkinter.Entry(mainframe) 
+            model_params['execute']     = tkinter.Button(mainframe,text="run model",command = lambda : exec_thread.run(),width=12,height=2)
+
+            # Set object vars 
+            algorithms['Doc Cluster'].output_container = output_container
+            algorithms["Doc Cluster"].cluster_val = model_params['cat num']
+        
+        elif model == "TopicModeler":
+            pass         
+        for item in model_params:
+            model_params[item].pack()
+            
+        output_container.pack(expand=True,fill=tkinter.BOTH)
+        mainframe.pack(expand=True,fill=tkinter.BOTH)
+        pop_up.mainloop()
+
+
 
     @staticmethod
     def remove_stopwords(sentence, pos_tag_list):
         stop_words = stopwords.words('english')
-        stop_words.append("unintelligible")
-        stop_words.append("yeah")
-        stop_words.append("okay")
-        stop_words.append("yes")
-        stop_words.append("right")
-        stop_words.append("interviewer")
-        stop_words.append("interview")
-        stop_words.append("record")
-        stop_words.append("participant")
-        stop_words.append("really")
-        stop_words.append("think")
-        stop_words.append("well")
-        stop_words.append("around")
-        stop_words.append("also")
-        stop_words.append("like")
-        stop_words.append("recording")
+        addl_stopwords = [
+                        "unintelligible","yeah","okay","yes","right","interviewer",
+                        "interview","record","participant","really","think","well",
+                        "around","also","like", "recording"
+        ]
+        stop_words = stop_words + addl_stopwords
+
 
         word_list = []
         if pos_tag_list != []:
@@ -220,6 +256,7 @@ class Algorithms:
                     word_list.append(token.text)
         else:
             word_list = sentence.split()
+
         new_word_list = word_list.copy()
         for word in list(word_list):
             word_lower = word.lower()
@@ -232,7 +269,7 @@ class Algorithms:
     @staticmethod
     def cleantextstring(text, pos_tag_list=[]):
         text = text.lower()
-        punc = '''!()-[]{};:'"\,<>./?@#$%^&*_~''''”''“''…'
+        punc = '''!()-[]\{\};:'"\,<>./?@#$%^&*_~''''”''“''…'
         for char in text:
             if char in punc:
                 text = text.replace(char, "")
@@ -586,10 +623,11 @@ class Algorithms:
             pop_up.destroy() 
             pop_up.quit()
 
-
+    # JENNY'S TM 
     class TopicModeler:
         def __init__(self,model_alg):
             self.model_alg =  model_alg # 'Sparse' or 'Multi'
+
 
         #Updated on 21MAR
         def sparseldamatrix_topics(self,filepath_list, num_topics, outfilename="sparseldamatrix_topics.txt", pos_tag_list=[], data_words=[]):
@@ -763,86 +801,87 @@ class Algorithms:
             pop_up.quit()
 
 
-
     class DocClusterer:
         def __init__(self,APP_REF):
-            try:
-                # doc init
-                self.f_docword = open("docword.interviews.txt", "r")
-                self.lines = self.f_docword.readlines()
-                # vocab init
-                self.vocab_file = open("vocab.interviews.txt", "r")
-                self.vocab_dict = {}
-                i = 1  # line number
-                for word in self.vocab_file:
-                    word = word.strip()
-                    self.vocab_dict[i] = word
-                    i += 1
-                # print(vocab_dict)
+            self.n_clusters = 2
+            self.output_container = None
+            self.cluster_val = None
+            self.APP_REF = APP_REF
 
-                # hardcoded for now
-                self.num_docs = 22
-                self.num_words = 3321
-                self.k = 2
-                self.app = APP_REF
+        def run_model(self):    
+            self.n_clusters = int(self.cluster_val.get())
+            self.output_container.insert(tkinter.END,f"running with {self.n_clusters} clusters\n")
 
-            except ValueError:
-                self.f_docword = None
-                print("Req'd files do not exist.")
 
-        # We then initialize the lil sparse matrix (docID x wordID) and fill them with the word counts.
-        # The rows represent the documents (docID) and the columns represent individual words (wordID).
-        # Afterwards, we convert the lil matrix to a csr to easily access the rows (documents).
-        def run(self, APP_REF):
-            # testing version (1st trail of removing stopwords)
-            # self.my_lil = lil_matrix((22+1, 3321+1))
-            self.my_lil = lil_matrix(
-                (self.num_docs+1, self.num_words+1))  # general version
+            stopwords = ["ledford","luning","cdr","deirdre","celeste","dr","dixon","ya","unintelligible"]
+            stopwords += ["patti","hmm","mm","umm","uh","interviewer","uhh","participant","um","ok","uhm"]
 
-            # populate the lil matrix
-            for line in self.lines:
-                docID, wordID, count = line.split()
-                self.my_lil[int(docID), int(wordID)] = int(count)
+            # Creat the vocabs and docwords 
+            vectorizer = CountVectorizer(strip_accents="unicode",max_df =.5,stop_words = stopwords,ngram_range = (1,1))
+            tfidfer = TfidfTransformer(sublinear_tf=True)
 
-            self.my_csr = self.my_lil.tocsr()
+            raw_text = [ re.sub(r"[0-9]|[']","", open(f,'r',encoding="utf_8").read()) for f in self.APP_REF.data['file_paths']]
+
+
+            dword_matrix = vectorizer.fit_transform(raw_text)
+            dword_matrix = tfidfer.fit_transform(dword_matrix)
+
+            vocab = vectorizer.get_feature_names_out()
+            self.dword_matrix = dword_matrix.tocsr()
+
             # make K means model - default value should be 2
-            self.kmeansModel = MiniBatchKMeans(n_clusters=self.k,
-                                               random_state=0,
-                                               batch_size=32)
+            self.kmeansModel = KMeans(n_clusters=self.n_clusters)
 
-            self.kmeansModel.fit(self.my_lil)
-            self.clusters = self.kmeansModel.predict(self.my_lil)
+            # Run the model on the data
+            self.output_container.insert(tkinter.END,f"fitting model\n")
+
+            self.kmeansModel.fit(self.dword_matrix)
+
+            self.output_container.insert(tkinter.END,f"predicting model\n")
+            self.clusters = self.kmeansModel.predict(self.dword_matrix)
             self.cluster_centers = self.kmeansModel.cluster_centers_
 
-            # Using the cluster_centers, in each row (quintessential document
-            # of a particular cluster), I wanted to find the 10 largest counts'
-            # indices (wordID) so that I can map them to actual words. I
-            # thought this would give me the top 10 most commonly used words
-            # in that particular cluster:
-            ix = 1
 
-            # EVERETT ADDED 
-            writer = open("CLUSTERS.txt",'w')
-            for doc in self.cluster_centers:
+            # Show info from the model
+            for i, doc in enumerate(self.cluster_centers):
                 # grab top 10 word IDs
                 top10_wid = sorted(range(len(doc)), key=lambda sub: doc[sub])[-10:]
 
                 # map wid to actual words
                 comn_word_list = []
                 for wid in top10_wid:
-                    comn_word_list.append(self.vocab_dict[wid])
+                    comn_word_list.append(vocab[wid])
 
                 # **** PRINTING THE TOP 10 WORDS IN THE CLUSTER ****
-                print(f"Cluster {ix}: {comn_word_list}")
-                writer.write(f"Cluster {ix}: {comn_word_list}\n")
-
-                ix += 1
+                self.output_container.insert(tkinter.END,f"Cluster {i}: {comn_word_list}\n")
 
 
-                # EVERETT ADDED 
-            writer.close()
+        # MAKE A STATIC METHOD AND PASS IN SCRIOLLED TEXST AND VAL FOR CLUSTER NUMS
+        def run(self,APP_REF):
+            self.run_thread = threading.Thread(target=self.model_run,args=[])
 
-            print(f'Number of cluster documents: {self.k}')
+            pop_up = tkinter.Tk()
+            pop_up.title("DocClustering")
+
+            
+            # Create interactable modules 
+            mainframe = tkinter.Frame(pop_up)
+
+            self.text = tkinter.Label(mainframe,text="Num Categories:",width=12,height=2)
+            self.cluster_val = tkinter.Entry(mainframe) 
+            self.interview_container = tkinter.scrolledtext.ScrolledText(mainframe, font=(APP_REF.settings['font'],APP_REF.settings['text_size']))
+            submit = tkinter.Button(mainframe,text="run model",command = lambda : self.run_thread.run(),width=12,height=2)
+
+
+
+
+            self.text.pack()
+            self.cluster_val.pack()
+            submit.pack()
+            self.interview_container.pack(expand=True,fill=tkinter.BOTH)
+            mainframe.pack(expand=True,fill=tkinter.BOTH)
+            pop_up.mainloop()
+            
 
 
     class gpt:

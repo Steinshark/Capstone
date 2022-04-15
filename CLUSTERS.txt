@@ -1,2 +1,2 @@
-Cluster 1: ['uhm', 'really', 'p', 'yeah', 'know', 'uh', 'think', 'um', 'interviewer', 'like']
-Cluster 2: ['know', 'ya', 'would', 'really', 'uh', 'think', 'um', 'ok', 'interviewer', 'like']
+Cluster 1: ['204', '205', '206', '207', '208', '209', '210', '1415', '811', '202']
+Cluster 2: ['1315', '204', '205', '206', '207', '208', '209', '210', '1415', '1515']
