@@ -72,7 +72,7 @@ class ImportedFile:
 
 
 class Utilities:
-    supported_types =   (   ("text files", "*.txt"),\
+    supported_types =   (       ("text files", "*.txt"),\
                                 ("word files", "*.docx"),\
                                 ("pdf files", "*.pdf"),\
                                 # Probably will not include in final version
@@ -194,12 +194,15 @@ class Utilities:
 
 class Algorithms:
 
+
     @staticmethod
     def run_alg_in_window(APP_REF,model):    
 
         # Algorithms 
-        algorithms = {  "Doc Cluster" : Algorithms.DocClusterer(APP_REF),
-                        "Classifier"  : Algorithms.Classifier(APP_REF)
+        algorithms = {  "Doc Cluster"   : Algorithms.DocClusterer(APP_REF),
+                        "LDAGensim"     : Algorithms.TopicModeler("Gensim"), 
+                        "LDADedicated"  : Algorithms.TopicModeler("Dedicated")
+                        "Classifier"    : Algorithms.Classifier(APP_REF)
                         }    
 
         #Create a window from which the model will be controlled from
@@ -237,7 +240,6 @@ class Algorithms:
         pop_up.mainloop()
 
 
-
     @staticmethod
     def remove_stopwords(sentence, pos_tag_list):
         stop_words = stopwords.words('english')
@@ -265,6 +267,7 @@ class Algorithms:
         new_sentence = " ".join(word for word in new_word_list)
         return new_sentence
 
+
     # Takes a string and returns an cleansed string
     @staticmethod
     def cleantextstring(text, pos_tag_list=[]):
@@ -275,11 +278,6 @@ class Algorithms:
                 text = text.replace(char, "")
         text = Algorithms.remove_stopwords(text, pos_tag_list)
         return text
-
-    @staticmethod
-    # Choose how to classify data 
-    def classifier_start(APP_REF):
-        root = tkinter.Tk()
 
     # JENNY'S EMBEDDINGS   
     class BertEmbed:
@@ -433,6 +431,7 @@ class Algorithms:
             self.config = BertConfig.from_pretrained('bert-base-uncased', output_hidden_states=True)
             self.model = BertModel.from_pretrained('bert-base-uncased', config=self.config)
             self.app    = APP_REF
+
         def readFileSimple(self,filepath_list):
             featureList_list = []
             for filepath in filepath_list:
@@ -625,12 +624,13 @@ class Algorithms:
 
     # JENNY'S TM 
     class TopicModeler:
-        def __init__(self,model_alg):
+        def __init__(self,model_alg,n):
+            self.n_topics = n
             self.model_alg =  model_alg # 'Sparse' or 'Multi'
 
 
         #Updated on 21MAR
-        def sparseldamatrix_topics(self,filepath_list, num_topics, outfilename="sparseldamatrix_topics.txt", pos_tag_list=[], data_words=[]):
+        def DedicatedLDA(self,filepath_list, num_topics, outfilename="sparseldamatrix_topics.txt", pos_tag_list=[], data_words=[]):
             #Create a dicitonary that maps the document name to the list of important words
             file_dict = {}
 
@@ -723,7 +723,7 @@ class Algorithms:
 
         #Uses LDA Multi-Core Topic Modeling to print out specified topics and a specific number of words from that topic to a specifiable file
         #Updated to unigrams on 21MAR
-        def ldamulticoretopics(self,filepath_list, num_topics=10, num_words=3, outfile_path="ldamulticoretopics_out.txt", pos_tag_list=[], data_words=[]):
+        def GensimLDA(self,filepath_list, num_topics=10, num_words=3, outfile_path="ldamulticoretopics_out.txt", pos_tag_list=[], data_words=[]):
             if data_words == []:
                 whole_text = ""
                 try:
@@ -766,19 +766,14 @@ class Algorithms:
                     w.write(f"Category {str(tuple[0])}: {tuple[1]}\n\n")
 
         def run(self,APP_REF):
+            if self.model_alg == 'Dedicated':
+                filepath_list = APP_REF.data['file_paths']
+                self.DedicatedLDA(filepath_list, num_topics=self.n_topics, outfilename="ldamulticoretopics_out.txt")
 
-            print("run was caled")
-            if self.model_alg == 'Multi':
-                print("runniong")
+            elif self.model_alg == 'Gensim':
                 filepath_list = [f.filepath for f in APP_REF.data['loaded_files']]
                 num_topics = 10
-                self.ldamulticoretopics(filepath_list, num_topics=3, outfilename="ldamulticoretopics_out.txt")
-                print("done")
-            elif self.model_alg == 'Sparse':
-                print("running Sparse")
-                filepath_list = [f.filepath for f in APP_REF.data['loaded_files']]
-                num_topics = 10
-                self.sparseldamatrix_topics(filepath_list, num_topics=3,pos_tag_list=["NOUN","ADJ"])
+                self.GensimLDA(filepath_list, num_topics=self.n_topics,pos_tag_list=["NOUN","ADJ"])
 
         def import_val(self,n,pop_up):
             self.topics = int(n)
