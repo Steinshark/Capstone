@@ -1,20 +1,80 @@
-Category 0: 0.034*"going" + 0.034*"kinda" + 0.018*"class"
-
-Category 1: 0.043*"definitely" + 0.018*"i’m" + 0.018*"gonna"
-
-Category 2: 0.021*"military" + 0.021*"sure" + 0.021*"special"
-
-Category 3: 0.033*"decision" + 0.025*"come" + 0.025*"year"
-
-Category 4: 0.023*"things" + 0.023*"guys" + 0.023*"perspective"
-
-Category 5: 0.043*"buds" + 0.032*"people" + 0.032*"first"
-
-Category 6: 0.028*"army" + 0.028*"buds" + 0.028*"he’s"
-
-Category 7: 0.037*"college" + 0.028*"brother" + 0.028*"great"
-
-Category 8: 0.039*"know" + 0.030*"laughing" + 0.020*"class"
-
-Category 9: 0.026*"could" + 0.026*"college" + 0.023*"know"
-
+Topic 0:
+['people' 'things' 'person' 'life' 'good' 'class' 'successful' 'important'
+ 'moment' 'buds' 'fine' 'biggest' 'impulsive' 'childhood' 'navy' 'body'
+ 'program' 'cold' 'timeout' 'boys']
+Topic 1:
+['good' 'little' 'buds' 'things' 'high' 'different' 'school' 'parents'
+ 'experience' 'water' 'sure' 'hard' 'relationship' 'work' 'code' 'head'
+ 'class' 'name' 'able' 'blue']
+Topic 2:
+['decision' 'kinda' 'boat' 'parents' 'entire' 'decisions' 'friend' 'team'
+ 'classmates' 'sorry' 'sort' 'seal' 'whim' 'games' 'time' 'routine'
+ 'teams' 'number' 'traits' 'video']
+Topic 3:
+['years' 'life' 'thing' 'much' 'first' 'time' 'friends' 'person' 'close'
+ 'better' 'older' 'hell' 'middle' 'awesome' 'teenage' 'whole' 'certain'
+ 'tickets' 'competitive' 'military']
+Topic 4:
+['hockey' 'program' 'minutes' 'company' 'navy' 'boot' 'factor' 'obstacle'
+ 'willing' 'piece' 'wooden' 'trip' 'break' 'open' 'public' 'book'
+ 'ledford' 'ready' 'commander' 'unique']
+Topic 5:
+['guys' 'week' 'school' 'huge' 'camp' 'next' 'kids' 'place' 'team' 'grade'
+ 'part' 'second' 'level' 'lets' 'similar' 'army' 'personal' 'failure'
+ 'aspect' 'individual']
+Topic 6:
+['school' 'first' 'high' 'class' 'younger' 'baseball' 'years' 'team'
+ 'little' 'thing' 'decision' 'best' 'situation' 'group' 'mental' 'mind'
+ 'idea' 'example' 'stubborn' 'sports']
+Topic 7:
+['buds' 'brother' 'part' 'physical' 'childhood' 'time' 'seal' 'training'
+ 'hardest' 'siblings' 'difficult' 'decision' 'seals' 'impulsive'
+ 'question' 'questions' 'older' 'experience' 'challenging' 'black']
+Topic 8:
+['thing' 'guys' 'stuff' 'couple' 'buddies' 'island' 'buddy' 'morning'
+ 'times' 'program' 'ones' 'lacrosse' 'perfect' 'army' 'none' 'seal' 'jobs'
+ 'part' 'special' 'front']
+Topic 9:
+['kind' 'time' 'experience' 'child' 'first' 'decision' 'successful' 'guys'
+ 'spiritual' 'times' 'easy' 'sport' 'challenging' 'years' 'specific'
+ 'parent' 'impulsive' 'interesting' 'weird' 'team']
+Topic 10:
+['academy' 'highschool' 'naval' 'place' 'days' 'couple' 'soccer' 'kind'
+ 'grade' 'worth' 'practices' 'background' 'weak' 'running' 'track'
+ 'church' 'worst' 'teenage' 'meaning' 'jail']
+Topic 11:
+['guys' 'good' 'phase' 'little' 'second' 'time' 'sports' 'class' 'week'
+ 'months' 'code' 'many' 'cool' 'part' 'kinda' 'tattoos' 'third' 'daily'
+ 'basis' 'weeks']
+Topic 12:
+['buds' 'things' 'people' 'many' 'navy' 'moral' 'household' 'sports'
+ 'first' 'active' 'examples' 'service' 'tattoos' 'swim' 'dynamic' 'others'
+ 'period' 'intelligible' 'strong' 'human']
+Topic 13:
+['years' 'buds' 'college' 'time' 'family' 'year' 'football' 'sports'
+ 'friends' 'life' 'last' 'whole' 'sister' 'teenage' 'first' 'house' 'test'
+ 'guide' 'spiritual' 'transcriber']
+Topic 14:
+['college' 'year' 'whole' 'sister' 'able' 'stuff' 'tattoos' 'long' 'crazy'
+ 'parents' 'inaudible' 'personality' 'goal' 'degree' 'town' 'events'
+ 'factor' 'diving' 'wife' 'means']
+Topic 15:
+['stuff' 'buds' 'family' 'decision' 'school' 'guys' 'good' 'able'
+ 'personality' 'head' 'sister' 'challenges' 'factor' 'mental' 'belt'
+ 'sure' 'community' 'interested' 'uhhh' 'crew']
+Topic 16:
+['team' 'military' 'parents' 'family' 'week' 'people' 'great' 'evolution'
+ 'tough' 'life' 'days' 'college' 'next' 'country' 'phase' 'father' 'point'
+ 'difference' 'quiet' 'single']
+Topic 17:
+['life' 'navy' 'hard' 'thing' 'decisions' 'group' 'military' 'different'
+ 'mind' 'tattoos' 'close' 'officer' 'times' 'pool' 'code' 'parents'
+ 'friends' 'relationship' 'background' 'stress']
+Topic 18:
+['people' 'things' 'best' 'hell' 'thing' 'little' 'sense' 'trouble'
+ 'experiences' 'siblings' 'training' 'impulsive' 'leadership' 'better'
+ 'mile' 'luck' 'others' 'room' 'normal' 'game']
+Topic 19:
+['stuff' 'experiences' 'example' 'mind' 'difficult' 'great' 'long'
+ 'community' 'crucible' 'experience' 'type' 'style' 'question' 'fleet'
+ 'pause' 'self' 'daily' 'situation' 'visualization' 'years']

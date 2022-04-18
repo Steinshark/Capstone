@@ -200,9 +200,10 @@ class Algorithms:
 
         # Algorithms 
         algorithms = {  "Doc Cluster"   : Algorithms.DocClusterer(APP_REF),
-                        "LDAGensim"     : Algorithms.TopicModeler("Gensim"), 
-                        "LDADedicated"  : Algorithms.TopicModeler("Dedicated")
-                        "Classifier"    : Algorithms.Classifier(APP_REF)
+                        "Topic Model"   : Algorithms.TopicModeler(None), 
+                        "LDADedicated"  : Algorithms.TopicModeler("Dedicated"),
+                        "Classifier"    : Algorithms.Classifier(APP_REF),
+                        "GPT"           : Algorithms.gpt()
                         }    
 
         #Create a window from which the model will be controlled from
@@ -214,15 +215,16 @@ class Algorithms:
         output_container = tkinter.scrolledtext.ScrolledText(mainframe, font=(APP_REF.settings['font'],APP_REF.settings['text_size']))
 
         #Create a thread to do the algorithm computation on
-        exec_thread = threading.Thread(target=algorithms[model].run_model,args=[])
+        exec_thread = None
 
         # Create model specific buttons
         model_params = {}
 
         if model == "Doc Cluster":
+            exec_thread = threading.Thread(target=algorithms[model].run_model,args=[])
 
             # number category param  
-            model_params["cat text"]    = tkinter.Label(mainframe,text="Num Categories:",width=12,height=2)
+            model_params["cat text"]    = tkinter.Label(mainframe,text="Clusters:",width=12,height=2)
             model_params['cat num']     = tkinter.Entry(mainframe) 
             model_params['execute']     = tkinter.Button(mainframe,text="run model",command = lambda : exec_thread.run(),width=12,height=2)
 
@@ -230,8 +232,35 @@ class Algorithms:
             algorithms['Doc Cluster'].output_container = output_container
             algorithms["Doc Cluster"].cluster_val = model_params['cat num']
         
-        elif model == "TopicModeler":
-            pass         
+        elif model == "Topic Model":
+            algorithms["Topic Model"].output_container = output_container
+
+            # Chose n topics
+            model_params["cat text"]        = tkinter.Label(mainframe,text="Clusters:",width=12,height=2)
+            model_params['cat num']         = tkinter.Entry(mainframe)           
+           
+            Gensim_thread                   = threading.Thread(target=algorithms[model].run,args=[APP_REF,"Gensim",model_params['cat num']])
+            Lda_thread                      = threading.Thread(target=algorithms[model].run,args=[APP_REF,"Dedicated",model_params['cat num']])
+
+            model_params['execute Gensim']  = tkinter.Button(mainframe,text="run Gensim",command = lambda : Gensim_thread.start(),width=12,height=2)
+            model_params['execute LDA']     = tkinter.Button(mainframe,text="run LDA",command = lambda : Lda_thread.start(),width=12,height=2)
+            
+
+
+
+        elif model == "Classifier":
+
+            # Choose model        
+            model_params["cat text"]        = tkinter.Label(mainframe,text="Num Categories:",width=12,height=2)
+            model_params['cat num']         = tkinter.Entry(mainframe)    
+
+        elif model == "GPT":
+            algorithms["GPT"].output_container = output_container
+
+            GPT_thread                      = threading.Thread(target=algorithms[model].interact_model,args=[])
+            model_params['run gpt']         = tkinter.Button(mainframe,text="run GPT",command = lambda : GPT_thread.start(),width=12,height=2)
+
+
         for item in model_params:
             model_params[item].pack()
             
@@ -523,7 +552,7 @@ class Algorithms:
             #open file to append
             filewriter = open(outfile_path, "a")
 
-            with open(filepath) as f:
+            with open(filepath,encoding="utf_8") as f:
                 num_valid_lines = 0
                 probability_sum = 0
                 probability_sum_list = [] #used only when flag == "v"
@@ -624,19 +653,21 @@ class Algorithms:
 
     # JENNY'S TM 
     class TopicModeler:
-        def __init__(self,model_alg,n):
-            self.n_topics = n
-            self.model_alg =  model_alg # 'Sparse' or 'Multi'
+        def __init__(self,output_container):
+            self.n_topics = 2
+            self.output_container = output_container
 
 
         #Updated on 21MAR
-        def DedicatedLDA(self,filepath_list, num_topics, outfilename="sparseldamatrix_topics.txt", pos_tag_list=[], data_words=[]):
+        def DedicatedLDA(self,filepath_list, num_topics, outfilename="sparseldamatrix_topics.txt", pos_tag_list=["NOUN","ADJ"], data_words=[]):
+            self.output_container.insert(tkinter.END,f"Starting LDA Computation\n")
+
             #Create a dicitonary that maps the document name to the list of important words
             file_dict = {}
 
             if data_words == []:
                 for filepath in filepath_list:
-                    with open(filepath) as f:
+                    with open(filepath,'r',encoding="utf_8") as f:
                         list_of_sentences = f.readlines()
                         #new_list_of_sentences = [] #remove
                         word_list = []
@@ -708,7 +739,7 @@ class Algorithms:
             # Create the coo_matrix
             dtm = coo_matrix((data, (rows,cols)), shape=(num_files, num_vocab), dtype=np.intc)
 
-            model = lda.LDA(n_topics=num_topics, n_iter=1000, random_state=1)
+            model = lda.LDA(n_topics=num_topics, n_iter=50  , random_state=1)
             model.fit(dtm)
             topic_word = model.topic_word_
 
@@ -717,22 +748,28 @@ class Algorithms:
 
             with open (outfilename, "w") as writer:
                 for i, topic_dist in enumerate(topic_word):
-                    writer.write(f"Topic {i}:\n")
                     topic_words = np.array(vocab)[np.argsort(topic_dist)][:-(num_topics+1):-1]
+                    
+                    writer.write(f"Topic {i}:\n")
+                    self.output_container.insert(tkinter.END,f"Topic {i}:\n")
+                    self.output_container.insert(tkinter.END,f"{str(topic_words)}:\n")
+
                     writer.write(str(topic_words) + "\n")
 
         #Uses LDA Multi-Core Topic Modeling to print out specified topics and a specific number of words from that topic to a specifiable file
         #Updated to unigrams on 21MAR
-        def GensimLDA(self,filepath_list, num_topics=10, num_words=3, outfile_path="ldamulticoretopics_out.txt", pos_tag_list=[], data_words=[]):
+        def GensimLDA(self,filepath_list, num_topics=10, num_words=3, outfile_path="ldamulticoretopics_out.txt", pos_tag_list=["NOUN","ADJ"], data_words=[]):
+            self.output_container.insert(tkinter.END,"Starting Gensim model...")
+
             if data_words == []:
                 whole_text = ""
                 try:
                     for filepath in filepath_list:
-                        with open(filepath) as f:
+                        with open(filepath,"r",encoding="utf_8") as f:
                             whole_text = whole_text + " " + f.read()
                 except Exception as e :
                     print(e)
-                    print("ERROR in ldamulticoretopics")
+                    self.output_container.insert(tkinter.END,f"Error running Gensim model LDA")
                     exit(2)
                 #split by end punctuation into sentences
                 sentences_list = re.split('[\.\?\!\\n]\s*', whole_text)
@@ -763,17 +800,19 @@ class Algorithms:
                 os.remove(outfile_path)
             for tuple in topics:
                 with open(outfile_path, "a") as w:
+                    print(f"Category {str(tuple[0])}: {tuple[1]}\n\n")
+                    self.output_container.insert(tkinter.END,f"Category {str(tuple[0])}: {tuple[1]}\n\n")
                     w.write(f"Category {str(tuple[0])}: {tuple[1]}\n\n")
 
-        def run(self,APP_REF):
-            if self.model_alg == 'Dedicated':
+        def run(self,APP_REF,model,entry_text):
+            topics = int(entry_text.get())
+            if model == 'Dedicated':
                 filepath_list = APP_REF.data['file_paths']
-                self.DedicatedLDA(filepath_list, num_topics=self.n_topics, outfilename="ldamulticoretopics_out.txt")
+                self.DedicatedLDA(filepath_list, num_topics=topics, outfilename="ldamulticoretopics_out.txt")
 
-            elif self.model_alg == 'Gensim':
+            elif model == 'Gensim':
                 filepath_list = [f.filepath for f in APP_REF.data['loaded_files']]
-                num_topics = 10
-                self.GensimLDA(filepath_list, num_topics=self.n_topics,pos_tag_list=["NOUN","ADJ"])
+                self.GensimLDA(filepath_list, num_topics=topics,pos_tag_list=["NOUN","ADJ"])
 
         def import_val(self,n,pop_up):
             self.topics = int(n)
@@ -878,9 +917,9 @@ class Algorithms:
             pop_up.mainloop()
             
 
-
     class gpt:
         def __init__(self):
+            self.output_container = None
             pass
 
         def interact_model(self,
@@ -928,6 +967,7 @@ class Algorithms:
                 saver.restore(sess, ckpt)
 
                 while True:
+
                     raw_text = input("Model prompt >>> ")
                     while not raw_text:
                         print('Prompt should not be empty!')
