@@ -159,23 +159,19 @@ class WorkSession:
         options_bar.config(bg=self.style['optionbox_bg'])
 
         # Buttons
-        import_button = Button(options_bar, text="import interview", command = lambda : Utilities.import_file(APP_REF,work_block=this_block))
+        import_button = Button(options_bar, text="Load Interview", command = lambda : Utilities.import_file(APP_REF,work_block=this_block))
         import_button.grid(sticky='nsew',row=0,column=0,padx=0,pady=0)
 
-        cluster_button = Button(options_bar, text="cluster interview", command = lambda : APP_REF.data['models']['classify'].run(APP_REF))
+        cluster_button = Button(options_bar, text="Classify Interviews", command = lambda : APP_REF.data['models']['classify'].run(APP_REF))
         cluster_button.grid(sticky='nsew',row=0,column=1,padx=0,pady=0)
 
-        topic_button = Button(options_bar, text="topic multi interview", command = lambda : APP_REF.data['models']['topicMultiModel'].run(APP_REF))
+        topic_button = Button(options_bar, text="Topic Model", command = lambda : Algorithms.run_alg_in_window(APP_REF,"Topic Model"))
         topic_button.grid(sticky='nsew',row=0,column=2,padx=0,pady=0)
 
-        topic_button2 = Button(options_bar, text="topic sparse model", command = lambda : APP_REF.data['models']['topicSparseModel'].run(APP_REF))
-        topic_button2.grid(sticky='nsew',row=0,column=5,padx=0,pady=0)
-
-
-        clusterD_button = Button(options_bar, text="cluster all interviews", command = lambda : Algorithms.run_alg_in_window(APP_REF,"Doc Cluster"))
+        clusterD_button = Button(options_bar, text="Cluster Interviews", command = lambda : Algorithms.run_alg_in_window(APP_REF,"Doc Cluster"))
         clusterD_button.grid(sticky='nsew',row=0,column=3,padx=0,pady=0)
 
-        gpt_button = Button(options_bar, text="run GPT", command = lambda : APP_REF.data['models']['gpt'].run(APP_REF))
+        gpt_button = Button(options_bar, text="run GPT", command = lambda : Algorithms.run_alg_in_window(APP_REF,"GPT"))
         gpt_button.grid(sticky='nsew',row=0,column=4,padx=0,pady=0)
 
         options_bar.grid(row=0,column=0,padx=10,pady=0,sticky='nsew')
@@ -203,9 +199,6 @@ class WorkSession:
 
         APP_REF.viewports[f"GPBUTTON{block_num}"] = gpt_button
         items[f"GPBUTTON{block_num}"] = gpt_button
-
-        APP_REF.viewports[f"TP2BUTTON{block_num}"] = topic_button2
-        items[f"TP2BUTTON{block_num}"] = topic_button2
         
 
         APP_REF.viewports[f"CLDBUTTON{block_num}"] = clusterD_button
