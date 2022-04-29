@@ -19,7 +19,7 @@ import tensorflow.compat.v1 as tf
 import model, sample, encoder
 import pandas as pd
 
-# NEEDED FOR MODELS 
+# NEEDED FOR MODELS
 import csv
 import re
 import pickle
@@ -43,6 +43,9 @@ from transformers import logging
 from sentence_transformers import SentenceTransformer
 import threading
 from tkinter.scrolledtext import *
+import speech_recognition as sr ##
+from pydub import AudioSegment ##
+from pydub.silence import split_on_silence ##
 
 logging.set_verbosity_warning()
 
@@ -77,7 +80,7 @@ class Utilities:
                                 ("pdf files", "*.pdf"),\
                                 # Probably will not include in final version
                                 ("all files", "*.*")  )
-    
+
     @staticmethod
     def get_os_root_filepath():
         return os.getcwd()
@@ -101,13 +104,13 @@ class Utilities:
         for file in file_list:
             if not file is None:
 
-                # Add the ImportedFile object to the loaded_files list 
+                # Add the ImportedFile object to the loaded_files list
                 file_object = ImportedFile(file.name,file.raw.read())
 
                 if not file_object in APP_REFERENCE.data['loaded_files']:
                     APP_REFERENCE.data['loaded_files'].append(file_object)
 
-                if not file.name in APP_REFERENCE.data['file_paths']: 
+                if not file.name in APP_REFERENCE.data['file_paths']:
                     APP_REFERENCE.data['file_paths'].append(file.name)
 
 
@@ -128,14 +131,14 @@ class Utilities:
             if not file_object in APP_REFERENCE.data['loaded_files']:
                 APP_REFERENCE.data['loaded_files'].append(file_object)
 
-            if not file.name in APP_REFERENCE.data['file_paths']: 
+            if not file.name in APP_REFERENCE.data['file_paths']:
                 APP_REFERENCE.data['file_paths'].append(file.name)
 
         else:
             print("File did not load correctly")
             return
 
-        # Open the file in the view container if it exists     
+        # Open the file in the view container if it exists
         if not work_block.interview_container is None:
             work_block.interview_container.configure(state="normal")
             work_block.interview_container.delete('0.0',tkinter.END)
@@ -159,11 +162,11 @@ class Utilities:
     @staticmethod
     def save_session(APP_REFERENCE):
 
-        # Keep track of the filepaths and rawbyte contents 
+        # Keep track of the filepaths and rawbyte contents
         # Thereof
         filepaths = []
 
-        # Save all filepaths and raw bytes 
+        # Save all filepaths and raw bytes
         for f in APP_REFERENCE.data['loaded_files']:
             filepaths.append(f.filepath)
 
@@ -186,7 +189,7 @@ class Utilities:
 
         fp = save_data['fp']
         rb = save_data['rb']
-        
+
         for f,r in zip(fp,rb):
             APP_REFERENCE.data['loaded_files'].append(ImportedFile(f,None,txt=r))
         APP_REFERENCE.settings = save_data['settings']
@@ -196,21 +199,22 @@ class Algorithms:
 
 
     @staticmethod
-    def run_alg_in_window(APP_REF,model):    
+    def run_alg_in_window(APP_REF,model):
 
-        # Algorithms 
+        # Algorithms
         algorithms = {  "Doc Cluster"   : Algorithms.DocClusterer(APP_REF),
-                        "Topic Model"   : Algorithms.TopicModeler(None), 
+                        "Topic Model"   : Algorithms.TopicModeler(None),
                         "LDADedicated"  : Algorithms.TopicModeler("Dedicated"),
                         "Classifier"    : Algorithms.Classifier(APP_REF),
-                        "GPT"           : Algorithms.gpt()
-                        }    
+                        "GPT"           : Algorithms.gpt(),
+                        "Transcription" : Algorithms.Transcriber(APP_REF) ##
+                        }
 
         #Create a window from which the model will be controlled from
         pop_up = tkinter.Tk()
         pop_up.title(model)
 
-        # Create interactable modules 
+        # Create interactable modules
         mainframe       = tkinter.Frame(pop_up)
         output_container = tkinter.scrolledtext.ScrolledText(mainframe, font=(APP_REF.settings['font'],APP_REF.settings['text_size']))
 
@@ -223,36 +227,33 @@ class Algorithms:
         if model == "Doc Cluster":
             exec_thread = threading.Thread(target=algorithms[model].run_model,args=[])
 
-            # number category param  
+            # number category param
             model_params["cat text"]    = tkinter.Label(mainframe,text="Clusters:",width=12,height=2)
-            model_params['cat num']     = tkinter.Entry(mainframe) 
+            model_params['cat num']     = tkinter.Entry(mainframe)
             model_params['execute']     = tkinter.Button(mainframe,text="run model",command = lambda : exec_thread.run(),width=12,height=2)
 
-            # Set object vars 
+            # Set object vars
             algorithms['Doc Cluster'].output_container = output_container
             algorithms["Doc Cluster"].cluster_val = model_params['cat num']
-        
+
         elif model == "Topic Model":
             algorithms["Topic Model"].output_container = output_container
 
             # Chose n topics
             model_params["cat text"]        = tkinter.Label(mainframe,text="Clusters:",width=12,height=2)
-            model_params['cat num']         = tkinter.Entry(mainframe)           
-           
+            model_params['cat num']         = tkinter.Entry(mainframe)
+
             Gensim_thread                   = threading.Thread(target=algorithms[model].run,args=[APP_REF,"Gensim",model_params['cat num']])
             Lda_thread                      = threading.Thread(target=algorithms[model].run,args=[APP_REF,"Dedicated",model_params['cat num']])
 
             model_params['execute Gensim']  = tkinter.Button(mainframe,text="run Gensim",command = lambda : Gensim_thread.start(),width=12,height=2)
             model_params['execute LDA']     = tkinter.Button(mainframe,text="run LDA",command = lambda : Lda_thread.start(),width=12,height=2)
-            
-
-
 
         elif model == "Classifier":
 
-            # Choose model        
+            # Choose model
             model_params["cat text"]        = tkinter.Label(mainframe,text="Num Categories:",width=12,height=2)
-            model_params['cat num']         = tkinter.Entry(mainframe)    
+            model_params['cat num']         = tkinter.Entry(mainframe)
 
         elif model == "GPT":
             algorithms["GPT"].output_container = output_container
@@ -260,10 +261,22 @@ class Algorithms:
             GPT_thread                      = threading.Thread(target=algorithms[model].interact_model,args=[])
             model_params['run gpt']         = tkinter.Button(mainframe,text="run GPT",command = lambda : GPT_thread.start(),width=12,height=2)
 
+##        elif model == "Transcription":
+##            exec_thread = threading.Thread(target=algorithms[model].run_model,args=[])
+##
+##            # number category param
+##            model_params['cat text']    = tkinter.Label(mainframe,text="Audio Transcription:",width=12,height=2)
+##            model_params['cat num']     = tkinter.Entry(mainframe)
+##            model_params['execute']     = tkinter.Button(mainframe,text="run model",command = lambda : exec_thread.run(),width=12,height=2)
+##
+##            # Set object vars
+##            algorithms['Transcription'].output_container = output_container
+##            algorithms['Transcription'].cluster_val = model_params['cat num']
+
 
         for item in model_params:
             model_params[item].pack()
-            
+
         output_container.pack(expand=True,fill=tkinter.BOTH)
         mainframe.pack(expand=True,fill=tkinter.BOTH)
         pop_up.mainloop()
@@ -308,7 +321,7 @@ class Algorithms:
         text = Algorithms.remove_stopwords(text, pos_tag_list)
         return text
 
-    # JENNY'S EMBEDDINGS   
+    # JENNY'S EMBEDDINGS
     class BertEmbed:
         def __init__(self):
             self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
@@ -406,7 +419,7 @@ class Algorithms:
             pop_up = tkinter.Tk()
             text = tkinter.Label(pop_up,text="Num Categories:",width=12,height=2)
             text.pack()
-            val = tkinter.Entry(pop_up) 
+            val = tkinter.Entry(pop_up)
             val.pack()
             submit = tkinter.Button(pop_up,text="ok",command = lambda : self.import_val(val.get(),pop_up),width=12,height=2)
             file_select = tkinter.Button(pop_up,text='File To Classify',command = lambda : self.get_file_to_classify(),width=12,height=2)
@@ -416,7 +429,7 @@ class Algorithms:
 
 
             self.file_paths= []
-            #popus to get all info 
+            #popus to get all info
             for i in range(self.BERT_categories):
                 self.category_files = []
                 pop_up = tkinter.Tk()
@@ -433,7 +446,7 @@ class Algorithms:
 
         def import_val(self,n,pop_up):
             self.BERT_categories = int(n)
-            pop_up.destroy() 
+            pop_up.destroy()
             pop_up.quit()
             print(self.BERT_categories)
 
@@ -448,11 +461,11 @@ class Algorithms:
                 i_files.append(f.name)
             print(i_files)
             self.category_files = i_files
-            pop_up.destroy() 
+            pop_up.destroy()
             pop_up.quit()
 
 
-    # JENNY'S CLASSIFIER  
+    # JENNY'S CLASSIFIER
     class Classifier:
 
         def __init__(self,APP_REF):
@@ -486,7 +499,7 @@ class Algorithms:
                 classifier = LogisticRegression(random_state = 0, max_iter=5000)
             else:
                 classifier = LogisticRegression(multi_class='multinomial', solver='lbfgs', random_state = 0, max_iter=5000)
-            
+
             classifier.fit(X, y)
 
             #save model below into a .sav file
@@ -538,8 +551,8 @@ class Algorithms:
             return -1
 
 
-        # Filepath: file we want to classify 
-        # Category_num: The cat that we want to check against -- but if verbose: this doesnt makee 
+        # Filepath: file we want to classify
+        # Category_num: The cat that we want to check against -- but if verbose: this doesnt makee
         def classify(self,filepath, category_num=1, outfile_path="classify_highprobabilitylines.txt", flag=""):
             category_num_index = category_num - 1
             classifier = pickle.load(open('classify_classifier.sav', 'rb'))
@@ -615,7 +628,7 @@ class Algorithms:
             # classify
             basepath = os.getcwd()
             numdirs = 2
-            
+
             #run logistic regression tests for evaluation, does not have to run right after bertDicSimpler
             embeddingspaths = []
             for i in range(numdirs):
@@ -634,7 +647,7 @@ class Algorithms:
 
         def import_val(self,n,pop_up):
             self.BERT_categories = int(n)
-            pop_up.destroy() 
+            pop_up.destroy()
             pop_up.quit()
             print(self.BERT_categories)
 
@@ -648,10 +661,10 @@ class Algorithms:
             for f in files:
                 i_files.append(f.name)
             self.category_files = i_files
-            pop_up.destroy() 
+            pop_up.destroy()
             pop_up.quit()
 
-    # JENNY'S TM 
+    # JENNY'S TM
     class TopicModeler:
         def __init__(self,output_container):
             self.n_topics = 2
@@ -749,7 +762,7 @@ class Algorithms:
             with open (outfilename, "w") as writer:
                 for i, topic_dist in enumerate(topic_word):
                     topic_words = np.array(vocab)[np.argsort(topic_dist)][:-(num_topics+1):-1]
-                    
+
                     writer.write(f"Topic {i}:\n")
                     self.output_container.insert(tkinter.END,f"Topic {i}:\n")
                     self.output_container.insert(tkinter.END,f"{str(topic_words)}:\n")
@@ -816,7 +829,7 @@ class Algorithms:
 
         def import_val(self,n,pop_up):
             self.topics = int(n)
-            pop_up.destroy() 
+            pop_up.destroy()
             pop_up.quit()
             print(self.BERT_categories)
 
@@ -831,7 +844,7 @@ class Algorithms:
                 i_files.append(f.name)
             print(i_files)
             self.category_files = i_files
-            pop_up.destroy() 
+            pop_up.destroy()
             pop_up.quit()
 
 
@@ -842,7 +855,7 @@ class Algorithms:
             self.cluster_val = None
             self.APP_REF = APP_REF
 
-        def run_model(self):    
+        def run_model(self):
             self.n_clusters = int(self.cluster_val.get())
             self.output_container.insert(tkinter.END,f"running with {self.n_clusters} clusters\n")
 
@@ -850,7 +863,7 @@ class Algorithms:
             stopwords = ["ledford","luning","cdr","deirdre","celeste","dr","dixon","ya","unintelligible"]
             stopwords += ["patti","hmm","mm","umm","uh","interviewer","uhh","participant","um","ok","uhm"]
 
-            # Creat the vocabs and docwords 
+            # Creat the vocabs and docwords
             vectorizer = CountVectorizer(strip_accents="unicode",max_df =.5,stop_words = stopwords,ngram_range = (1,1))
             tfidfer = TfidfTransformer(sublinear_tf=True)
 
@@ -897,12 +910,12 @@ class Algorithms:
             pop_up = tkinter.Tk()
             pop_up.title("DocClustering")
 
-            
-            # Create interactable modules 
+
+            # Create interactable modules
             mainframe = tkinter.Frame(pop_up)
 
             self.text = tkinter.Label(mainframe,text="Num Categories:",width=12,height=2)
-            self.cluster_val = tkinter.Entry(mainframe) 
+            self.cluster_val = tkinter.Entry(mainframe)
             self.interview_container = tkinter.scrolledtext.ScrolledText(mainframe, font=(APP_REF.settings['font'],APP_REF.settings['text_size']))
             submit = tkinter.Button(mainframe,text="run model",command = lambda : self.run_thread.run(),width=12,height=2)
 
@@ -915,7 +928,7 @@ class Algorithms:
             self.interview_container.pack(expand=True,fill=tkinter.BOTH)
             mainframe.pack(expand=True,fill=tkinter.BOTH)
             pop_up.mainloop()
-            
+
 
     class gpt:
         def __init__(self):
@@ -986,8 +999,68 @@ class Algorithms:
                     print("=" * 80)
 
         def run(self,APP_REF):
-            APP_REF.data['models']['gpt'].interact_model()  
+            APP_REF.data['models']['gpt'].interact_model()
+
+class Transcriber:
+    def __init__(self,APP_REF):
+        self.output_container = None
+        self.APP_REF = APP_REF
+
+    def run_model(self, path, outputfile):
+        self.output_container.insert(tkinter.END,f"running with {self.n_clusters} clusters\n")
+
+
+        #Create a speech recognition object
+        r = sr.Recognizer()
+
+        f = open(outputfile, "a")
+
+        #Open the audio file using pydub
+        sound = AudioSegment.from_wav(path)
+        #Split audio sound where silence is 700 ms+ and get chunks
+        chunks = split_on_silence(sound, min_silence_len = 500, silence_thresh = sound.dBFS-14, keep_silence=500)
+        folder_name = "audio-chunks"
+        #Create a directory to store the audio chunks
+        if not os.path.isdir(folder_name):
+            os.mkdir(folder_name)
+        whole_text = ""
+        #Process each chunk
+        for i, audio_chunk in enumerate(chunks, start=1):
+            #Export audio chunk and save in 'folder_name' directory
+            chunk_filename = os.path.join(folder_name, f"chunk{i}.wav")
+            audio_chunk.export(chunk_filename, format="wav")
+            #Recognize the chunk
+            with sr.AudioFile(chunk_filename) as source:
+                audio_listened = r.record(source)
+                #Convert to text
+                try:
+                    text = r.recognize_google(audio_listened)
+                except sr.UnknownValueError as e:
+                    info = "..."
+                    f.write(info)
+                else:
+                    text = f"{text.capitalize()}. "
+                    info = chunk_filename + ":" + text
+                    f.write(info)
+                    whole_text += text
+        f.close()
+        return whole_text
+
+    # MAKE A STATIC METHOD AND PASS IN SCRIOLLED TEXST AND VAL FOR CLUSTER NUMS
+    def run(self,APP_REF):
+        self.run_thread = threading.Thread(target=self.model_run,args=[])
+
+        pop_up = tkinter.Tk()
+        pop_up.title("Audio Transcription")
+
+        path = APP_REF.data['file_paths'][0] # I only want to grab one file??
+        self.run_model(path, outfilename=path+".txt")
 
 
 
-
+        self.text.pack()
+        self.cluster_val.pack()
+        submit.pack()
+        self.interview_container.pack(expand=True,fill=tkinter.BOTH)
+        mainframe.pack(expand=True,fill=tkinter.BOTH)
+        pop_up.mainloop()
