@@ -278,7 +278,7 @@ class Algorithms:
             # number category param
             model_params['cat text']    = tkinter.Label(mainframe,text="Audio Transcription:",width=16,height=3)
             model_params['filename']     = tkinter.Button(mainframe,text="Choose file",command= lambda:algorithms["Transcription"].get_auidio_file(),width=16,height=3)
-            model_params['execute']     = tkinter.Button(mainframe,text="run model",command = lambda : exec_thread.run(),width=16,height=3)
+            model_params['execute']     = tkinter.Button(mainframe,text="run model",command = lambda : exec_thread.start(),width=16,height=3)
 
             # Set object vars
             algorithms['Transcription'].output_container = output_container
@@ -1031,7 +1031,12 @@ class Algorithms:
                 #Open the audio file using pydub
                 self.output_container.insert(tkinter.END,f"\tLoading Audio\n")
 
-                sound = AudioSegment.from_wav(self.file)
+                if self.file.name[-3:] in ["MP3", "mp3"]:
+                    sound = AudioSegment.from_mp3(self.file.name) 
+                elif self.file.name[-3:] in ["WAV","wav"]:
+                    sound = AudioSegment.from_wav(self.file)
+                else:
+                    self.output_container.insert(tkinter.END,f"\tfound {self.file.name[-3:]}\n")
                 #Split audio sound where silence is 700 ms+ and get chunks
                 self.output_container.insert(tkinter.END,f"\tSplitting file\n")
                 chunks = split_on_silence(sound, min_silence_len = 500, silence_thresh = sound.dBFS-14, keep_silence=500)
