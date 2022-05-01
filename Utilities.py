@@ -195,6 +195,17 @@ class Utilities:
         APP_REFERENCE.settings = save_data['settings']
 
 
+    @staticmethod
+    def display_help(APP_REFERENCE):
+        pop_up = tkinter.Tk()
+        pop_up.title("QuaRT Tutorial")
+
+        # Create tutorial
+        mainframe       = tkinter.Frame(pop_up)
+        output_container = tkinter.scrolledtext.ScrolledText(mainframe, font=(APP_REFERENCE.settings['font'],APP_REFERENCE.settings['text_size']))
+        output_container.pack(expand=True,fill=tkinter.BOTH)
+        mainframe.pack(expand=True,fill=tkinter.BOTH)
+        output_container.insert(tkinter.END,"HELP!")
 class Algorithms:
 
 
@@ -261,17 +272,17 @@ class Algorithms:
             GPT_thread                      = threading.Thread(target=algorithms[model].interact_model,args=[])
             model_params['run gpt']         = tkinter.Button(mainframe,text="run GPT",command = lambda : GPT_thread.start(),width=12,height=2)
 
-##        elif model == "Transcription":
-##            exec_thread = threading.Thread(target=algorithms[model].run_model,args=[])
-##
-##            # number category param
-##            model_params['cat text']    = tkinter.Label(mainframe,text="Audio Transcription:",width=12,height=2)
-##            model_params['cat num']     = tkinter.Entry(mainframe)
-##            model_params['execute']     = tkinter.Button(mainframe,text="run model",command = lambda : exec_thread.run(),width=12,height=2)
-##
-##            # Set object vars
-##            algorithms['Transcription'].output_container = output_container
-##            algorithms['Transcription'].cluster_val = model_params['cat num']
+        elif model == "Transcription":
+            exec_thread = threading.Thread(target=algorithms[model].run_model,args=[])
+
+            # number category param
+            model_params['cat text']    = tkinter.Label(mainframe,text="Audio Transcription:",width=16,height=3)
+            model_params['filename']     = tkinter.Button(mainframe,text="Choose file",command= lambda:algorithms["Transcription"].get_auidio_file(),width=16,height=3)
+            model_params['execute']     = tkinter.Button(mainframe,text="run model",command = lambda : exec_thread.run(),width=16,height=3)
+
+            # Set object vars
+            algorithms['Transcription'].output_container = output_container
+            algorithms['Transcription'].filename = model_params['filename']
 
 
         for item in model_params:
@@ -847,7 +858,6 @@ class Algorithms:
             pop_up.destroy()
             pop_up.quit()
 
-
     class DocClusterer:
         def __init__(self,APP_REF):
             self.n_clusters = 2
@@ -929,7 +939,6 @@ class Algorithms:
             mainframe.pack(expand=True,fill=tkinter.BOTH)
             pop_up.mainloop()
 
-
     class gpt:
         def __init__(self):
             self.output_container = None
@@ -1001,66 +1010,81 @@ class Algorithms:
         def run(self,APP_REF):
             APP_REF.data['models']['gpt'].interact_model()
 
-class Transcriber:
-    def __init__(self,APP_REF):
-        self.output_container = None
-        self.APP_REF = APP_REF
+    class Transcriber:
+        def __init__(self,APP_REF):
+            self.output_container = None
+            self.APP_REF = APP_REF
 
-    def run_model(self, path, outputfile):
-        self.output_container.insert(tkinter.END,f"running with {self.n_clusters} clusters\n")
+        def get_auidio_file(self):
+            self.file = askopenfile(mode='rb',filetypes=Utilities.supported_types)
+
+        def run_model(self):
+            self.output_container.insert(tkinter.END,f"transcribing {self.file.name}\n")
+            #Create a speech recognition object
+            r = sr.Recognizer()
+
+            fname = self.file.name
+            print(f"using {fname}.txt")
+            f = open(f"{fname}.txt", "a")
+
+            try:
+                #Open the audio file using pydub
+                self.output_container.insert(tkinter.END,f"\tLoading Audio\n")
+
+                sound = AudioSegment.from_wav(self.file)
+                #Split audio sound where silence is 700 ms+ and get chunks
+                self.output_container.insert(tkinter.END,f"\tSplitting file\n")
+                chunks = split_on_silence(sound, min_silence_len = 500, silence_thresh = sound.dBFS-14, keep_silence=500)
+
+                folder_name = "audio-chunks"
+                #Create a directory to store the audio chunks
+                if not os.path.isdir(folder_name):
+                    os.mkdir(folder_name)
+                whole_text = ""
+                #Process each chunk
+                for i, audio_chunk in enumerate(chunks, start=1):
+                    #Export audio chunk and save in 'folder_name' directory
+                    chunk_filename = os.path.join(folder_name, f"chunk{i}.wav")
+                    audio_chunk.export(chunk_filename, format="wav")
+                    #Recognize the chunk
+                    with sr.AudioFile(chunk_filename) as source:
+                        audio_listened = r.record(source)
+                        #Convert to text
+                        try:
+                            self.output_container.insert(tkinter.END,f"\tCalculating Chunk via Google\n")
+                            text = r.recognize_google(audio_listened)
+                        except sr.UnknownValueError as e:
+                            info = "..."
+                            f.write(info)
+                        else:
+                            text = f"{text.capitalize()}. "
+                            info = chunk_filename + ":" + text
+                            f.write(info)
+                            whole_text += text
+            except Exception as e:
+                self.output_container.insert(tkinter.END,f"ERROR: {e[:100]}\n- aborting\n")
+                whole_text = "Transcription Failed"
+
+            f.close()
+            self.output_container.insert(tkinter.END,f"Finished Transcription of {self.file.name}\n")
+
+            return whole_text
+
+        # MAKE A STATIC METHOD AND PASS IN SCRIOLLED TEXST AND VAL FOR CLUSTER NUMS
+        def run(self,APP_REF):
+            self.run_thread = threading.Thread(target=self.model_run,args=[])
+
+            pop_up = tkinter.Tk()
+            pop_up.title("Audio Transcription")
+
+            path = APP_REF.data['file_paths'][0] # I only want to grab one file??
+            self.run_model(path, outfilename=path+".txt")
 
 
-        #Create a speech recognition object
-        r = sr.Recognizer()
 
-        f = open(outputfile, "a")
-
-        #Open the audio file using pydub
-        sound = AudioSegment.from_wav(path)
-        #Split audio sound where silence is 700 ms+ and get chunks
-        chunks = split_on_silence(sound, min_silence_len = 500, silence_thresh = sound.dBFS-14, keep_silence=500)
-        folder_name = "audio-chunks"
-        #Create a directory to store the audio chunks
-        if not os.path.isdir(folder_name):
-            os.mkdir(folder_name)
-        whole_text = ""
-        #Process each chunk
-        for i, audio_chunk in enumerate(chunks, start=1):
-            #Export audio chunk and save in 'folder_name' directory
-            chunk_filename = os.path.join(folder_name, f"chunk{i}.wav")
-            audio_chunk.export(chunk_filename, format="wav")
-            #Recognize the chunk
-            with sr.AudioFile(chunk_filename) as source:
-                audio_listened = r.record(source)
-                #Convert to text
-                try:
-                    text = r.recognize_google(audio_listened)
-                except sr.UnknownValueError as e:
-                    info = "..."
-                    f.write(info)
-                else:
-                    text = f"{text.capitalize()}. "
-                    info = chunk_filename + ":" + text
-                    f.write(info)
-                    whole_text += text
-        f.close()
-        return whole_text
-
-    # MAKE A STATIC METHOD AND PASS IN SCRIOLLED TEXST AND VAL FOR CLUSTER NUMS
-    def run(self,APP_REF):
-        self.run_thread = threading.Thread(target=self.model_run,args=[])
-
-        pop_up = tkinter.Tk()
-        pop_up.title("Audio Transcription")
-
-        path = APP_REF.data['file_paths'][0] # I only want to grab one file??
-        self.run_model(path, outfilename=path+".txt")
-
-
-
-        self.text.pack()
-        self.cluster_val.pack()
-        submit.pack()
-        self.interview_container.pack(expand=True,fill=tkinter.BOTH)
-        mainframe.pack(expand=True,fill=tkinter.BOTH)
-        pop_up.mainloop()
+            self.text.pack()
+            self.cluster_val.pack()
+            submit.pack()
+            self.interview_container.pack(expand=True,fill=tkinter.BOTH)
+            mainframe.pack(expand=True,fill=tkinter.BOTH)
+            pop_up.mainloop()

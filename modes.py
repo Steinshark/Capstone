@@ -95,17 +95,15 @@ class WorkSession:
                                 'file'      :   Menu(self.toolbar, tearoff=0),\
                                 'edit'      :   Menu(self.toolbar, tearoff=0),
                                 'session'   :   Menu(self.toolbar, tearoff=0),
-                                'tools'     :   Menu(self.toolbar, tearoff=0)
+                                'tools'     :   Menu(self.toolbar, tearoff=0),
+                                'help'     :   Menu(self.toolbar, tearoff=0)
         }
 
         # For each dropdown, add commands
-        #self.tool_dropdown['session'].add_command(label='new',command = lambda x : x)
         self.tool_dropdown['session'].add_command(label='save',command = lambda : Utilities.save_session(APP_REF))
         self.tool_dropdown['session'].add_command(label='load',command = lambda : Utilities.load_session(APP_REF))
 
         self.tool_dropdown['file'].add_command(label='import',command = lambda : Utilities.import_files(APP_REF))
-        #self.tool_dropdown['file'].add_command(label='export',command = lambda x : x)
-        #self.tool_dropdown['file'].add_command(label='replace',command = lambda x : x)
 
 
         self.tool_dropdown['edit'].add_command(label='import',command = lambda : Utilities.import_files(APP_REF))
@@ -113,18 +111,21 @@ class WorkSession:
         self.tool_dropdown['edit'].add_command(label='view2',command = lambda  : self.__init__(APP_REF,n_frames=2))
 
         # TOOLS DROPDOWN CREATIONS
-        #self.tool_dropdown['tools'].add_command(label='word count',command = lambda x : x)
         self.tool_dropdown['tools'].add_command(label='classify',command = lambda : APP_REF.data['models']['classify'].run(APP_REF))
-        self.tool_dropdown['tools'].add_command(label='cluster docs',command = lambda : APP_REF.data['models']['DocClusterer'].run(APP_REF))
-        self.tool_dropdown['tools'].add_command(label='topic model',command = lambda : APP_REF.data['models']['topicMultiModel'].run(APP_REF))
-        #self.tool_dropdown['tools'].add_command(label='compare',command = lambda x : x)
-        #self.tool_dropdown['tools'].add_command(label='compare',command = lambda x : x)
+        self.tool_dropdown['tools'].add_command(label='cluster docs',command = lambda : Algorithms.run_alg_in_window(APP_REF,"Doc Cluster"))
+        self.tool_dropdown['tools'].add_command(label='topic model',command = lambda : Algorithms.run_alg_in_window(APP_REF,"Topic Model"))
+        self.tool_dropdown['tools'].add_command(label='Transcribe',command = lambda : Algorithms.run_alg_in_window(APP_REF,"Transcription"))
+
+        # Help section
+        self.tool_dropdown['help'].add_command(label='help',command = lambda : Utilities.display_help(APP_REF))
+
 
         # add the dropdown to the toolbar
         self.toolbar.add_cascade(label='Session',menu=self.tool_dropdown['session'])
         self.toolbar.add_cascade(label='File',menu=self.tool_dropdown['file'])
         self.toolbar.add_cascade(label='Edit',menu=self.tool_dropdown['edit'])
         self.toolbar.add_cascade(label='Tools',menu=self.tool_dropdown['tools'])
+        self.toolbar.add_cascade(label='help',menu=self.tool_dropdown['help'])
 
         # add the bar to the window
         APP_REF.root.config(menu=self.toolbar)
