@@ -1,6 +1,46 @@
 # This class is meant to make the GUI_APP class cleaner
 # "Utilities" will not be instantiated. All methods are
 # static
+
+tutorial_msg = """
+This tool is designed to aid in the analysis of interviews. The tools provided are geared towards 
+computer algorithm analysis.
+
+Layout:
+    -Atop the window, you will see dropdown menus. All of the functionality
+     of the tool is accessible here, though there are several applicable
+     buttons above interview slots.
+
+    -Interview boxes (either 1 or 2) will take up most of the screen.
+     These can contain interview text to be navigated and analyzed 
+     after being imported with the 'import interview' button.
+
+    -Interview box buttons appear above each interview and are a way to 
+    run algorithms easier. 
+
+    -Running each tool will open a pop-up window from which the algorithm
+     will run. Several windows can be opened at once to run, though 
+     your computer will be slowed down for each algorithm running 
+     at one time.
+
+Key Steps for Success:
+    -Before running algorithms, load at least 1 interview in with the 
+     edit -> 'import interview' button. Several interviews are required
+     for some. For best results, load all available interviews.
+
+    -Ensure that several interviews are loaded before proceeding. 
+     Having too few will cause a poor result from the algorithms.
+
+    -Give time for the algorithms to run since many of them take 
+     a lot of computational power.
+"""
+
+
+
+
+
+
+
 import os                                           # allows access to filepath
 import tkinter
 from tkinter.filedialog import askopenfiles         # allows for file interaction
@@ -205,7 +245,9 @@ class Utilities:
         output_container = tkinter.scrolledtext.ScrolledText(mainframe, font=(APP_REFERENCE.settings['font'],APP_REFERENCE.settings['text_size']))
         output_container.pack(expand=True,fill=tkinter.BOTH)
         mainframe.pack(expand=True,fill=tkinter.BOTH)
-        output_container.insert(tkinter.END,"HELP!")
+        output_container.insert(tkinter.END,tutorial_msg)
+        output_container.configure(state="disabled")
+
 class Algorithms:
 
 
