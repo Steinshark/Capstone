@@ -1056,13 +1056,12 @@ class Algorithms:
                         audio_listened = r.record(source)
                         #Convert to text
                         try:
-                            self.output_container.insert(tkinter.END,f"\tCalculating Chunk via Google\n")
                             text = r.recognize_google(audio_listened)
                         except sr.UnknownValueError as e:
-                            info = "..."
+                            info = "...\n"
                             f.write(info)
                         else:
-                            text = f"{text.capitalize()}. "
+                            text = f"{text.capitalize()}.\n "
                             info = chunk_filename + ":" + text
                             f.write(info)
                             whole_text += text
